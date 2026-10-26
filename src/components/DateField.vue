@@ -62,26 +62,28 @@ const display = computed(() =>
 </script>
 
 <template>
-  <button type="button" class="field-value date-trigger" @click="open = true">
-    <span :class="{ ph: !modelValue }">{{ display || placeholder }}</span>
-    <ChevronRight :size="16" />
-  </button>
+  <div class="date-field">
+    <button type="button" class="field-value date-trigger" @click="open = true">
+      <span :class="{ ph: !modelValue }">{{ display || placeholder }}</span>
+      <ChevronRight :size="16" />
+    </button>
 
-  <div v-if="open" class="sheet-mask" @click.self="open = false">
-    <div class="sheet">
-      <div class="sheet-head">
-        <CalendarDays :size="18" />
-        <span>选择日期</span>
-        <button class="icon-btn" @click="open = false"><X :size="18" /></button>
-      </div>
-      <div class="date-selects">
-        <select v-model.number="y"><option v-for="i in years" :key="i" :value="i">{{ i }}年</option></select>
-        <select v-model.number="m"><option v-for="i in months" :key="i" :value="i">{{ i }}月</option></select>
-        <select v-model.number="d"><option v-for="i in dayList" :key="i" :value="i">{{ i }}日</option></select>
-      </div>
-      <div class="sheet-actions">
-        <button class="sheet-btn ghost" @click="setToday">今天</button>
-        <button class="sheet-btn main" @click="done">确定</button>
+    <div v-if="open" class="sheet-mask" @click.self="open = false">
+      <div class="sheet">
+        <div class="sheet-head">
+          <CalendarDays :size="18" />
+          <span>选择日期</span>
+          <button class="icon-btn" @click="open = false"><X :size="18" /></button>
+        </div>
+        <div class="date-selects">
+          <select v-model.number="y"><option v-for="i in years" :key="i" :value="i">{{ i }}年</option></select>
+          <select v-model.number="m"><option v-for="i in months" :key="i" :value="i">{{ i }}月</option></select>
+          <select v-model.number="d"><option v-for="i in dayList" :key="i" :value="i">{{ i }}日</option></select>
+        </div>
+        <div class="sheet-actions">
+          <button class="sheet-btn ghost" @click="setToday">今天</button>
+          <button class="sheet-btn main" @click="done">确定</button>
+        </div>
       </div>
     </div>
   </div>

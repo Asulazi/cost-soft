@@ -1,7 +1,8 @@
 <script setup>
 import { reactive, ref, computed } from 'vue'
-import { X, Check, Package, Wallet, CalendarDays, Tags, CircleDollarSign, Trash2 } from 'lucide-vue-next'
+import { X, Check, Package, Wallet, Tags, CircleDollarSign, Trash2 } from 'lucide-vue-next'
 import CuteBox from './CuteBox.vue'
+import DateField from './DateField.vue'
 import { STATUS } from '../db.js'
 
 const props = defineProps({
@@ -105,7 +106,7 @@ function submit() {
       <div class="field-row">
         <span class="field-icon"><CalendarDays :size="18" /></span>
         <span class="field-label">购买日期</span>
-        <input v-model="form.purchaseDate" class="field-input" type="date" :max="today" />
+        <DateField v-model="form.purchaseDate" />
       </div>
       <div class="field-row">
         <span class="field-icon"><Tags :size="18" /></span>
@@ -137,7 +138,7 @@ function submit() {
       </div>
       <div v-if="form.status === STATUS.SOLD" class="field-row" style="border-top: 1px solid var(--line)">
         <span class="field-label">卖出日期</span>
-        <input v-model="form.soldDate" class="field-input" type="date" :max="today" />
+        <DateField v-model="form.soldDate" placeholder="请选择卖出日期" />
       </div>
     </div>
 

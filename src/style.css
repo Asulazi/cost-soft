@@ -497,6 +497,7 @@ a {
   justify-content: flex-end;
   gap: 4px;
   color: var(--ink);
+  flex: 1;
 }
 
 .date-trigger .ph {
