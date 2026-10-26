@@ -15,9 +15,11 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "gh-pages": "^6.2.0",
     "@vitejs/plugin-vue": "^5.2.1",
     "playwright": "^1.64.1",
     "vite": "^5.4.11",
-    "vite-plugin-pwa": "^0.21.1"
+    "vite-plugin-pwa": "^0.21.1",
+    "wrangler": "^4.152.0"
   }
 }

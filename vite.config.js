@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  base: '/cost-soft/',
   plugins: [
     vue(),
     VitePWA({
@@ -16,7 +17,8 @@ export default defineConfig({
         theme_color: '#f2f3ee',
         background_color: '#f2f3ee',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/cost-soft/',
+        scope: '/cost-soft/',
         icons: [
           { src: 'pwa-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'pwa-512.png', sizes: '512x512', type: 'image/png' },
@@ -25,7 +27,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
-        navigateFallback: '/index.html'
+        navigateFallback: '/cost-soft/index.html'
       }
     })
   ]
