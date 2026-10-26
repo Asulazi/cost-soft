@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { GripVertical, Check, ArrowUpDown } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -48,6 +48,48 @@ function dragEnter(i) {
 function save() {
   emit('save', { mode: mode.value, order: mode.value === 'custom' ? list.value : null })
 }
+
+// mobile drag with pointer events
+let startY = 0
+let dragEl = null
+const touchIndex = ref(null)
+
+function ts(i, e) {
+  dragIndex.value = i
+  touchIndex.value = i
+  startY = e.touches[0].clientY
+}
+
+function tm(e) {
+  if (touchIndex.value === null) return
+  const cur = e.touches[0].clientY
+  const rowH = 48
+  const diff = Math.round((cur - startY) / rowH)
+  if (diff !== 0) {
+    const ni = Math.max(0, Math.min(list.value.length - 1, touchIndex.value + diff))
+    if (ni !== touchIndex.value) {
+      const arr = [...list.value]
+      const [moved] = arr.splice(touchIndex.value, 1)
+      arr.splice(ni, 0, moved)
+      touchIndex.value = ni
+      dragIndex.value = ni
+      startY = cur
+      list.value = arr
+    }
+  }
+}
+
+function te() {
+  touchIndex.value = null
+  dragIndex.value = null
+}
+
+function preventScroll(e) {
+  if (touchIndex.value !== null) e.preventDefault()
+}
+
+onMounted(() => document.addEventListener('touchmove', preventScroll, { passive: false }))
+onBeforeUnmount(() => document.removeEventListener('touchmove', preventScroll))
 </script>
 
 <template>
@@ -70,6 +112,9 @@ function save() {
             @dragover.prevent
             @dragenter.prevent="dragEnter(i)"
             @drop.prevent="dragIndex = null"
+            @touchstart="ts(i, $event)"
+            @touchmove="tm"
+            @touchend="te"
           >
             <GripVertical class="drag-handle" :size="18" />
             <span>{{ assets.find((a) => a.id === id)?.name || '未知' }}</span>

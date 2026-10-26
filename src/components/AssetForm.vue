@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref, computed } from 'vue'
-import { X, Check, Package, Wallet, Tags, CircleDollarSign, Trash2, Target, Coins, TrendingUp, Paperclip, Pin, PiggyBank, CalendarX2, PackageX, ArrowUpFromLine, StickyNote, ImagePlus, Plus } from 'lucide-vue-next'
+import { X, Check, Package, Wallet, Tags, CalendarDays, Trash2, Target, Coins, TrendingUp, Paperclip, Pin, PiggyBank, CalendarX2, PackageX, ArrowUpFromLine, StickyNote, ImagePlus, Plus } from 'lucide-vue-next'
 import CuteBox from './CuteBox.vue'
 import DateField from './DateField.vue'
 import { STATUS } from '../db.js'
@@ -87,7 +87,6 @@ function compress(file) {
   })
 }
 
-const statusList = [STATUS.ACTIVE, STATUS.RETIRED, STATUS.SOLD]
 const rules = ['按天', '按次', '自定义']
 const today = computed(() => new Date().toISOString().slice(0, 10))
 
@@ -133,6 +132,27 @@ function submit() {
         <span class="field-icon"><Wallet :size="18" /></span>
         <span class="field-label">价格</span>
         <input v-model="form.price" class="field-input" type="number" inputmode="decimal" min="0" placeholder="请输入物品价格" />
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="field-row">
+        <span class="field-icon"><CalendarDays :size="18" /></span>
+        <span class="field-label">购买日期</span>
+        <DateField v-model="form.purchaseDate" />
+      </div>
+      <div class="field-row">
+        <span class="field-icon"><Tags :size="18" /></span>
+        <span class="field-label">类别</span>
+        <select v-model="form.category" class="field-input" style="appearance: auto; text-align: right">
+          <option v-for="c in categories" :key="c.id ?? c.name" :value="c.name">{{ c.name }}</option>
+          <option value="未分类">未分类</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <span class="field-icon"><Tags :size="18" /></span>
+        <span class="field-label">标签</span>
+        <input v-model="form.tags" class="field-input" placeholder="空格分隔，可留空" />
       </div>
     </div>
 
@@ -235,46 +255,6 @@ function submit() {
         备注
       </div>
       <textarea v-model="form.note" class="note-input" placeholder="输入备注" rows="3"></textarea>
-    </div>
-
-    <div class="form-section">
-      <div class="field-row">
-        <span class="field-icon"><CalendarDays :size="18" /></span>
-        <span class="field-label">购买日期</span>
-        <DateField v-model="form.purchaseDate" />
-      </div>
-      <div class="field-row">
-        <span class="field-icon"><Tags :size="18" /></span>
-        <span class="field-label">类别</span>
-        <select v-model="form.category" class="field-input" style="appearance: auto; text-align: right">
-          <option v-for="c in categories" :key="c.id ?? c.name" :value="c.name">{{ c.name }}</option>
-          <option value="未分类">未分类</option>
-        </select>
-      </div>
-      <div class="field-row">
-        <span class="field-icon"><Tags :size="18" /></span>
-        <span class="field-label">标签</span>
-        <input v-model="form.tags" class="field-input" placeholder="空格分隔，可留空" />
-      </div>
-    </div>
-
-    <div class="form-section">
-      <div class="rule-title">
-        <span class="field-icon"><CircleDollarSign :size="18" /></span>
-        成本计算规则
-      </div>
-      <div class="segmented-block">
-        <div class="segmented">
-          <button v-for="r in rules" :key="r" :class="{ on: form.rule === r }" @click="form.rule = r">{{ r }}</button>
-        </div>
-      </div>
-      <div class="status-picker">
-        <button v-for="s in statusList" :key="s" :class="{ on: form.status === s }" @click="form.status = s">{{ s }}</button>
-      </div>
-      <div v-if="form.status === STATUS.SOLD" class="field-row" style="border-top: 1px solid var(--line)">
-        <span class="field-label">卖出日期</span>
-        <DateField v-model="form.soldDate" placeholder="请选择卖出日期" />
-      </div>
     </div>
 
     <button v-if="asset" class="set-row danger" style="border-radius: var(--radius); margin-top: 6px" @click="$emit('delete')">

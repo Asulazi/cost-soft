@@ -854,6 +854,8 @@ a {
   margin-bottom: 16px;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
 }
 
 .trend-filters::-webkit-scrollbar {

@@ -17,17 +17,38 @@ const ranges = [
 const range = ref(0)
 
 const totals = computed(() => {
-  const active = props.assets.filter((a) => a.status === '服役中')
+  const today = new Date().toISOString().slice(0, 10)
+  let cutoffDate = ''
+  if (range.value > 0) {
+    const c = new Date()
+    c.setDate(c.getDate() - range.value)
+    cutoffDate = c.toISOString().slice(0, 10)
+  }
+  const scoped = props.assets.filter((a) => {
+    if (cutoffDate && a.purchaseDate < cutoffDate) return false
+    return true
+  })
+  const active = scoped.filter((a) => a.status === '服役中')
   return {
     value: active.reduce((s, a) => s + Number(a.price), 0),
-    count: props.assets.length
+    count: scoped.length
   }
 })
 
 const statusSplit = computed(() => {
-  const total = props.assets.reduce((s, a) => s + Number(a.price), 0) || 1
+  let cutoffDate = ''
+  if (range.value > 0) {
+    const c = new Date()
+    c.setDate(c.getDate() - range.value)
+    cutoffDate = c.toISOString().slice(0, 10)
+  }
+  const scoped = props.assets.filter((a) => {
+    if (cutoffDate && a.purchaseDate < cutoffDate) return false
+    return true
+  })
+  const total = scoped.reduce((s, a) => s + Number(a.price), 0) || 1
   const groups = ['服役中', '已退役', '已卖出'].map((s) => {
-    const list = props.assets.filter((a) => a.status === s)
+    const list = scoped.filter((a) => a.status === s)
     return {
       name: s,
       amount: list.reduce((sum, a) => sum + Number(a.price), 0),
