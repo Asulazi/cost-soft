@@ -480,6 +480,82 @@ a {
   color: var(--ink-faint);
 }
 
+.field-input[type='number']::-webkit-outer-spin-button,
+.field-input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.field-input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.date-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  color: var(--ink);
+}
+
+.date-trigger .ph {
+  color: var(--ink-faint);
+}
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.sheet-head .icon-btn {
+  margin-left: auto;
+}
+
+.date-selects {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.date-selects select {
+  appearance: auto;
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 12px 10px;
+  font-size: 15px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.sheet-actions {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 8px;
+}
+
+.sheet-btn {
+  padding: 13px;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.sheet-btn.ghost {
+  background: var(--surface);
+  color: var(--ink-soft);
+}
+
+.sheet-btn.main {
+  background: var(--ink);
+  color: var(--surface);
+}
+
 .field-value {
   flex: 1;
   text-align: right;

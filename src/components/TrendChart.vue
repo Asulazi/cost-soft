@@ -43,6 +43,14 @@ const points = computed(() => {
       series.unshift({ date: cut > series[0].date ? cut : series[0].date, value: base })
     }
   }
+  if (series.length === 1) {
+    const first = series[0]
+    if (first.date === today && first.value > 0) {
+      series = [{ date: '1999-01-01', value: 0 }, first]
+    } else {
+      series = [first, { ...first }]
+    }
+  }
   return series
 })
 
