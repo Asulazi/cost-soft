@@ -23,6 +23,8 @@ const form = reactive({
   type: props.asset?.type || '资产',
   targetMode: props.asset?.targetMode || 'none',
   targetValue: props.asset?.targetValue ?? '',
+  targetDays: props.asset?.targetValue && props.asset?.targetMode === 'price' ? Math.round(Number(props.asset.price) / Number(props.asset.targetValue)) : '',
+  targetDate: '',
   incomes: Array.isArray(props.asset?.incomes) ? props.asset.incomes.map((i) => ({ ...i })) : [],
   marketPrices: Array.isArray(props.asset?.marketPrices) ? props.asset.marketPrices.map((i) => ({ ...i })) : [],
   extras: Array.isArray(props.asset?.extras) ? props.asset.extras.map((i) => ({ ...i })) : [],
@@ -104,11 +106,18 @@ function submit() {
   if (!form.name.trim()) return emit('toast', '请填写名称')
   if (!form.price || Number(form.price) <= 0) return emit('toast', '请填写有效价格')
   if (!form.purchaseDate) return emit('toast', '请选择购买日期')
+  let tv = null
+  if (form.targetMode === 'custom') tv = Number(form.targetValue) || null
+  if (form.targetMode === 'price') tv = form.targetDays ? Number((Number(form.price) / Number(form.targetDays)).toFixed(4)) : null
+  if (form.targetMode === 'date' && form.targetDate) {
+    const days = Math.max(1, Math.round((new Date(form.targetDate) - new Date(form.purchaseDate)) / 86400000))
+    tv = Number((Number(form.price) / days).toFixed(4))
+  }
   emit('save', {
     ...form,
     name: form.name.trim(),
     price: Number(form.price),
-    targetValue: form.targetMode === 'custom' ? Number(form.targetValue) || null : null,
+    targetValue: tv,
     incomes: form.incomes.filter((i) => Number(i.amount) > 0),
     marketPrices: form.marketPrices.filter((i) => Number(i.price) > 0),
     extras: form.extras.filter((e) => Number(e.amount) > 0),
@@ -182,6 +191,14 @@ function submit() {
       <div v-if="form.targetMode === 'custom'" class="field-row" style="border-top: 1px solid var(--line)">
         <span class="field-label">目标值</span>
         <input v-model="form.targetValue" class="field-input" type="number" inputmode="decimal" placeholder="请输入目标日均成本" />
+      </div>
+      <div v-if="form.targetMode === 'price'" class="field-row" style="border-top: 1px solid var(--line)">
+        <span class="field-label">目标使用天数</span>
+        <input v-model="form.targetDays" class="field-input" type="number" inputmode="numeric" placeholder="希望用多少天，如 365" />
+      </div>
+      <div v-if="form.targetMode === 'date'" class="field-row" style="border-top: 1px solid var(--line)">
+        <span class="field-label">目标日期</span>
+        <DateField v-model="form.targetDate" title="目标日期" placeholder="选个日期" />
       </div>
     </div>
 

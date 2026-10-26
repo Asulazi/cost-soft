@@ -253,13 +253,13 @@ const tabs = [
       <SettingsView :categories="categories" @toast="showToast" @reload="loadAll" />
     </template>
 
-    <div v-if="!showForm" class="tabbar">
+    <div v-if="!showForm" class="tabbar with-fab">
       <button v-for="t in tabs" :key="t.key" class="tab-item" :class="{ active: tab === t.key && !showForm }" @click="tab = t.key; showForm = false">
         <component :is="t.icon" :size="21" :stroke-width="1.8" />
         {{ t.label }}
       </button>
+      <button class="fab" @click="openNew"><Plus :size="24" /></button>
     </div>
-    <button v-if="!showForm" class="fab" @click="openNew"><Plus :size="24" /></button>
 
     <SortSheet v-if="showSort" :assets="sorted" :config="sortConfig" @close="showSort = false" @save="applySort" />
     <div v-if="toast" class="toast">{{ toast }}</div>
