@@ -4,3 +4,4 @@ dev-server.log
 shots/
 *.local
 .DS_Store
+Thumbs.db
