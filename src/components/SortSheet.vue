@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
-import { GripVertical, Check, ArrowUpDown } from 'lucide-vue-next'
+import { GripVertical, Check, ArrowUpDown, ChevronLeft } from 'lucide-vue-next'
 
 const props = defineProps({
   assets: { type: Array, required: true },
@@ -21,6 +21,7 @@ const modes = [
 ]
 
 const mode = ref(props.config.mode)
+const editing = ref(false)
 const dragIndex = ref(null)
 const list = ref(props.assets.map((a) => a.id))
 
@@ -31,6 +32,23 @@ watch(
   },
   { deep: true }
 )
+
+function pick(key) {
+  mode.value = key
+  if (key === 'custom') {
+    editing.value = true
+  } else {
+    save()
+  }
+}
+
+function back() {
+  editing.value = false
+}
+
+function save() {
+  emit('save', { mode: mode.value, order: mode.value === 'custom' ? list.value : null })
+}
 
 function dragStart(i) {
   dragIndex.value = i
@@ -45,13 +63,7 @@ function dragEnter(i) {
   list.value = arr
 }
 
-function save() {
-  emit('save', { mode: mode.value, order: mode.value === 'custom' ? list.value : null })
-}
-
-// mobile drag with pointer events
 let startY = 0
-let dragEl = null
 const touchIndex = ref(null)
 
 function ts(i, e) {
@@ -63,7 +75,7 @@ function ts(i, e) {
 function tm(e) {
   if (touchIndex.value === null) return
   const cur = e.touches[0].clientY
-  const rowH = 48
+  const rowH = 50
   const diff = Math.round((cur - startY) / rowH)
   if (diff !== 0) {
     const ni = Math.max(0, Math.min(list.value.length - 1, touchIndex.value + diff))
@@ -95,12 +107,20 @@ onBeforeUnmount(() => document.removeEventListener('touchmove', preventScroll))
 <template>
   <div class="sort-sheet-mask" @click.self="$emit('close')">
     <div class="sheet">
-      <div class="sheet-title">排序方式</div>
-      <button v-for="m in modes" :key="m.key" class="sort-option" :class="{ on: mode === m.key }" @click="mode = m.key">
-        {{ m.label }}
-        <Check v-if="mode === m.key" class="check-mark" :size="18" />
-      </button>
-      <template v-if="mode === 'custom'">
+      <template v-if="!editing">
+        <div class="sheet-title">排序方式</div>
+        <button v-for="m in modes" :key="m.key" class="sort-option" :class="{ on: mode === m.key }" @click="pick(m.key)">
+          {{ m.label }}
+          <Check v-if="mode === m.key" class="check-mark" :size="18" />
+        </button>
+      </template>
+
+      <template v-else>
+        <div class="drag-head">
+          <button class="round-btn" @click="back"><ChevronLeft :size="18" /></button>
+          <span class="drag-title">拖动调整顺序</span>
+          <button class="round-btn main" @click="save"><Check :size="18" /></button>
+        </div>
         <div class="cat-list">
           <div
             v-for="(id, i) in list"
@@ -121,9 +141,8 @@ onBeforeUnmount(() => document.removeEventListener('touchmove', preventScroll))
             <ArrowUpDown :size="16" style="color: var(--ink-faint)" />
           </div>
         </div>
-        <button class="direction-toggle" @click="$emit('close')">长按名称行可上下拖动，完成后点保存</button>
+        <div class="drag-hint">按住行上下拖动，完成后点右上角 ✓ 保存</div>
       </template>
-      <button class="direction-toggle" style="background: var(--ink); color: var(--surface); font-weight: 600" @click="save">保存排序</button>
     </div>
   </div>
 </template>

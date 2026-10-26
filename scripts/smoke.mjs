@@ -3,7 +3,10 @@ import { chromium } from 'playwright'
 const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
 const errors = []
-page.on('pageerror', (e) => errors.push('pageerror: ' + e.message))
+page.on('pageerror', (e) => errors.push('pageerror: ' + (e.stack || e.message).slice(0, 400)))
+page.on('console', (m) => {
+  if (m.type() === 'error') errors.push('console: ' + m.text())
+})
 page.on('console', (m) => {
   if (m.type() === 'error') errors.push('console: ' + m.text())
 })
@@ -36,8 +39,14 @@ await page.click('button.chip:has-text("全部")')
 await page.click('.topbar-actions .icon-btn:first-child')
 await page.waitForTimeout(300)
 await page.screenshot({ path: 'shots/05-sort-sheet.png' })
-await page.click('button:has-text("日均成本从高到低")')
-await page.click('button:has-text("保存排序")')
+await page.click('button.sort-option:has-text("日均成本从高到低")')
+await page.waitForTimeout(400)
+await page.click('.topbar-actions .icon-btn:first-child')
+await page.waitForTimeout(300)
+await page.click('button.sort-option:has-text("自定义拖拽")')
+await page.waitForTimeout(300)
+await page.screenshot({ path: 'shots/05b-custom-sort.png' })
+await page.click('.drag-head .round-btn.main')
 await page.waitForTimeout(400)
 await page.screenshot({ path: 'shots/06-sorted.png' })
 
