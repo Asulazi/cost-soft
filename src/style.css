@@ -308,8 +308,8 @@ a {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 8px;
-  padding: 0;
+  gap: 10px;
+  padding: 10px;
   cursor: pointer;
 }
 
@@ -318,9 +318,10 @@ a {
 }
 
 .asset-photo {
-  width: 100%;
-  height: 52px;
-  border-radius: 0;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   background: var(--bg);
   display: grid;
   place-items: center;
@@ -329,12 +330,23 @@ a {
   overflow: hidden;
 }
 
+.asset-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .status-pill {
-  position: absolute;
-  top: 5px;
-  right: 5px;
+  position: static;
+  flex: 0 0 auto;
+  max-width: 62px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 9px;
-  padding: 2px 5px;
+  line-height: 1;
+  padding: 4px 6px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.92);
   color: var(--ink);
@@ -352,16 +364,16 @@ a {
 }
 
 .asset-photo img {
-  position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 4px;
+  box-sizing: border-box;
 }
 
 .placeholder-box {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   opacity: 0.9;
 }
 
@@ -371,7 +383,7 @@ a {
 }
 
 .asset-body {
-  padding: 10px 12px 12px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -383,7 +395,7 @@ a {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 2px;
+  margin-bottom: 0;
 }
 
 .asset-title {

@@ -14,9 +14,11 @@ function fmt(n) {
 
 <template>
   <div class="asset-card" @click="$emit('open', asset)">
-    <div class="asset-photo">
-      <img v-if="asset.photo" :src="asset.photo" alt="" />
-      <CuteBox v-else class="placeholder-box" />
+    <div class="asset-card-head">
+      <div class="asset-photo">
+        <img v-if="asset.photo" :src="asset.photo" alt="" />
+        <CuteBox v-else class="placeholder-box" />
+      </div>
       <span class="status-pill" :class="{ sold: asset.status === '已卖出', retired: asset.status === '已退役' }">{{ asset.status }}</span>
     </div>
     <div class="asset-body">
