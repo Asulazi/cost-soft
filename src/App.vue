@@ -46,9 +46,11 @@ const filtered = computed(() => {
 const sorted = computed(() => {
   const list = [...filtered.value]
   const cfg = sortConfig.value
+  const pin = list.filter((a) => a.pinned)
+  const rest = list.filter((a) => !a.pinned)
   if (cfg.mode === 'custom') {
     const order = cfg.order || []
-    list.sort((a, b) => {
+    rest.sort((a, b) => {
       const ia = order.indexOf(a.id)
       const ib = order.indexOf(b.id)
       if (ia === -1 && ib === -1) return (b.id || 0) - (a.id || 0)
@@ -64,14 +66,22 @@ const sorted = computed(() => {
   else if (cfg.mode === 'daysAsc') list.sort((a, b) => daysUsed(a.purchaseDate, a.status, a.soldDate) - daysUsed(b.purchaseDate, b.status, b.soldDate))
   else if (cfg.mode === 'dateDesc') list.sort((a, b) => (b.purchaseDate > a.purchaseDate ? 1 : -1))
   else if (cfg.mode === 'dateAsc') list.sort((a, b) => (a.purchaseDate > b.purchaseDate ? 1 : -1))
+  if (pin.length) {
+    rest.sort((a, b) => {
+      const ia = list.indexOf(a)
+      const ib = list.indexOf(b)
+      return ia - ib
+    })
+  }
+  if (pin.length) return [...pin, ...rest]
   return list
 })
 
 const totals = computed(() => {
-  const active = assets.value.filter((a) => a.status === '服役中')
+  const active = assets.value.filter((a) => a.status === '服役中' && !a.excludeFromTotal)
   const totalValue = active.reduce((s, a) => s + Number(a.price), 0)
   const totalDaily = assets.value
-    .filter((a) => a.status !== '已卖出')
+    .filter((a) => a.status !== '已卖出' && !a.excludeFromDaily)
     .reduce((s, a) => s + dailyCost(a), 0)
   return {
     value: totalValue,

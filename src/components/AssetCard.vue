@@ -1,5 +1,5 @@
 <script setup>
-import { daysUsed, dailyCost } from '../db.js'
+import { daysUsed, dailyCost, latestMarketPrice } from '../db.js'
 import CuteBox from './CuteBox.vue'
 
 const props = defineProps({
@@ -26,7 +26,9 @@ function fmt(n) {
         </span>
       </div>
       <div class="asset-meta">
-        ¥{{ fmt(asset.price) }} · {{ daysUsed(asset.purchaseDate, asset.status, asset.soldDate) }}天
+        ¥{{ fmt(asset.price) }}
+        <template v-if="latestMarketPrice(asset)"> · 市场价 ¥{{ fmt(latestMarketPrice(asset).price) }}</template>
+        · {{ daysUsed(asset.purchaseDate, asset.status, asset.soldDate) }}天
       </div>
       <div class="asset-cost">¥{{ fmt(dailyCost(asset)) }}/天</div>
     </div>

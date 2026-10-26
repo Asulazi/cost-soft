@@ -64,7 +64,32 @@ export function daysUsed(purchaseDate, status, soldDate = null) {
   return Math.max(1, diff)
 }
 
+export function extraCost(asset) {
+  return Array.isArray(asset.extras)
+    ? asset.extras.reduce((s, e) => s + Number(e.amount || 0), 0)
+    : 0
+}
+
+export function totalCost(asset) {
+  return Number(asset.price) + extraCost(asset)
+}
+
 export function dailyCost(asset) {
   const days = daysUsed(asset.purchaseDate, asset.status, asset.soldDate)
-  return Number(asset.price) / days
+  return totalCost(asset) / days
+}
+
+export function incomeRate(asset) {
+  if (!Array.isArray(asset.incomes) || !asset.incomes.length) return 0
+  const total = asset.incomes.reduce((s, i) => s + Number(i.amount || 0), 0)
+  return total / daysUsed(asset.purchaseDate, asset.status, asset.soldDate)
+}
+
+export function netDailyCost(asset) {
+  return dailyCost(asset) - incomeRate(asset)
+}
+
+export function latestMarketPrice(asset) {
+  if (!Array.isArray(asset.marketPrices) || !asset.marketPrices.length) return null
+  return [...asset.marketPrices].sort((a, b) => (a.date > b.date ? -1 : 1))[0]
 }
