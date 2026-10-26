@@ -1,6 +1,6 @@
 <script setup>
-import { Package } from 'lucide-vue-next'
 import { daysUsed, dailyCost } from '../db.js'
+import CuteBox from './CuteBox.vue'
 
 const props = defineProps({
   asset: { type: Object, required: true }
@@ -16,7 +16,7 @@ function fmt(n) {
   <div class="asset-card" @click="$emit('open', asset)">
     <div class="asset-photo">
       <img v-if="asset.photo" :src="asset.photo" alt="" />
-      <Package v-else :size="30" :stroke-width="1.5" />
+      <CuteBox v-else class="placeholder-box" />
     </div>
     <div class="asset-body">
       <div class="asset-title-row">

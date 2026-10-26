@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { Download, Upload, FolderPlus, ShieldCheck, Trash2, ChevronRight, Plus, X } from 'lucide-vue-next'
+import { Download, Upload, FileDown, FolderPlus, ShieldCheck, Trash2, ChevronRight, Plus, X } from 'lucide-vue-next'
 import { db, saveCategories } from '../db.js'
 
 const props = defineProps({
@@ -12,39 +12,38 @@ const newCat = ref('')
 
 function exportData() {
   emit('toast', '导出中...')
-  Promise.all([db.assets.toArray(), db.settings.toArray()]).then(([assets, settings]) => {
-    const payload = { app: 'youshu-local', version: 1, exportedAt: new Date().toISOString(), assets, settings }
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `有数备份-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(a.href)
-    emit('toast', '已导出到下载目录')
+  db.assets.toArray().then(async (assets) => {
+    if (!assets.length) return emit('toast', '还没有资产可导出')
+    const { exportAssetsExcel } = await import('../excel.js')
+    exportAssetsExcel(assets)
+    emit('toast', '已导出 Excel 到下载目录')
   })
 }
 
-function importData(e) {
+async function importData(e) {
   const file = e.target.files?.[0]
   if (!file) return
-  const reader = new FileReader()
-  reader.onload = async () => {
-    try {
-      const data = JSON.parse(reader.result)
-      if (data.app !== 'youshu-local' || !Array.isArray(data.assets)) throw new Error('格式不对')
-      await db.transaction('rw', db.assets, db.settings, async () => {
-        await db.assets.clear()
-        await db.settings.clear()
-        await db.assets.bulkPut(data.assets)
-        await db.settings.bulkPut(data.settings)
-      })
-      emit('toast', '导入成功')
-      emit('reload')
-    } catch {
-      emit('toast', '文件格式有误，导入失败')
-    }
+  try {
+    const { importAssetsExcel } = await import('../excel.js')
+    const { assets, errors } = await importAssetsExcel(file)
+    if (errors.length) return emit('toast', errors[0])
+    if (!assets.length) return emit('toast', '没有读到有效数据行')
+    const maxOrder = await db.assets.toArray().then((all) => all.reduce((m, a) => Math.max(m, Number(a.order ?? 0)), 0))
+    const withOrder = assets.map((a, i) => ({ ...a, order: maxOrder + i + 1 }))
+    await db.assets.bulkAdd(withOrder)
+    emit('toast', `成功导入 ${assets.length} 项资产`)
+    emit('reload')
+  } catch {
+    emit('toast', '文件读取失败，请用下载的模板填写')
   }
-  reader.readAsText(file)
+  e.target.value = ''
+}
+
+function getTemplate() {
+  import('../excel.js').then(({ downloadTemplate }) => {
+    downloadTemplate()
+    emit('toast', '模板已下载')
+  })
 }
 
 async function addCategory() {
@@ -63,6 +62,11 @@ async function removeCategory(index) {
 
 async function clearAll() {
   if (!confirm('确定要清空全部资产数据吗？此操作不可恢复，建议先导出备份。')) return
+  const typed = prompt('此操作不可恢复！请输入「清空」两个字以确认：')
+  if (typed !== '清空') {
+    emit('toast', '输入不匹配，已取消清空')
+    return
+  }
   await db.assets.clear()
   emit('toast', '已清空资产')
   emit('reload')
@@ -75,14 +79,18 @@ async function clearAll() {
 
     <div class="set-section">
       <button class="set-row" @click="exportData">
-        <Download :size="18" /> 导出备份 (JSON)
+        <Download :size="18" /> 导出备份 (Excel)
         <ChevronRight class="chevron" :size="16" />
       </button>
       <label class="set-row">
-        <Upload :size="18" /> 导入备份
+        <Upload :size="18" /> 导入备份 (Excel)
         <ChevronRight class="chevron" :size="16" />
-        <input type="file" accept=".json,application/json" style="display: none" @change="importData" />
+        <input type="file" accept=".xlsx,.xls" style="display: none" @change="importData" />
       </label>
+      <button class="set-row" @click="getTemplate">
+        <FileDown :size="18" /> 下载导入模板
+        <ChevronRight class="chevron" :size="16" />
+      </button>
     </div>
 
     <div class="set-section">
@@ -105,7 +113,7 @@ async function clearAll() {
       <div class="set-row" style="cursor: default">
         <ShieldCheck :size="18" /> 数据完全存储在本机
       </div>
-      <div class="set-hint">所有资产记录只保存在此设备的浏览器数据库中，不联网上传，可随时导出 JSON 备份。</div>
+      <div class="set-hint">所有资产记录只保存在此设备的浏览器数据库中，不联网上传，可随时导出 Excel 备份。</div>
     </div>
 
     <div class="set-section">

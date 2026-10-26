@@ -6,75 +6,89 @@ const props = defineProps({
   range: { type: Number, default: 0 }
 })
 
+function iso(d) {
+  return d.toISOString().slice(0, 10)
+}
+
 const points = computed(() => {
-  const events = []
-  for (const a of props.assets) {
-    events.push({ date: a.purchaseDate, delta: Number(a.price) })
-    if (a.status === '已卖出' && a.soldDate) events.push({ date: a.soldDate, delta: 0 })
+  const list = props.assets
+  if (!list.length) return []
+
+  const dateSet = new Set()
+  for (const a of list) {
+    if (a.purchaseDate) dateSet.add(String(a.purchaseDate).slice(0, 10))
+    if (a.status === '已卖出' && a.soldDate) dateSet.add(String(a.soldDate).slice(0, 10))
   }
-  const dates = [...new Set(events.map((e) => e.date))].sort()
-  if (!dates.length) return []
+  const today = iso(new Date())
+  dateSet.add(today)
+  const dates = [...dateSet].sort()
 
-  const today = new Date().toISOString().slice(0, 10)
-  if (dates[dates.length - 1] < today) dates.push(today)
+  const valueAt = (d) =>
+    list.reduce((sum, a) => {
+      if (!a.purchaseDate || a.purchaseDate > d) return sum
+      if (a.status === '已卖出' && a.soldDate && a.soldDate <= d) return sum
+      return sum + Number(a.price)
+    }, 0)
 
-  let running = 0
-  const eventMap = {}
-  for (const e of events) eventMap[e.date] = (eventMap[e.date] || 0) + e.delta
-
-  let series = dates.map((d) => {
-    running += eventMap[d] || 0
-    return { date: d, value: running }
-  })
-
-  if (series.length === 1) {
-    series = [series[0], { ...series[0] }]
-  }
+  let series = dates.map((d) => ({ date: d, value: valueAt(d) }))
 
   if (props.range > 0) {
     const cutoff = new Date()
     cutoff.setDate(cutoff.getDate() - props.range)
-    const cut = cutoff.toISOString().slice(0, 10)
+    const cut = iso(cutoff)
+    const before = series.filter((p) => p.date < cut)
+    const base = before.length ? before[before.length - 1].value : 0
     series = series.filter((p) => p.date >= cut)
+    if (series.length && (!before.length || series[0].date > cut)) {
+      series.unshift({ date: cut > series[0].date ? cut : series[0].date, value: base })
+    }
   }
   return series
 })
 
-const path = computed(() => {
-  if (points.value.length < 2) return ''
-  const w = 320
-  const h = 120
-  const maxV = Math.max(...points.value.map((p) => p.value), 1) * 1.08
-  const minV = 0
-  const step = w / (points.value.length - 1)
-  return points.value
-    .map((p, i) => {
-      const x = (i * step).toFixed(1)
-      const y = (h - ((p.value - minV) / (maxV - minV)) * h).toFixed(1)
-      return `${i === 0 ? 'M' : 'L'}${x},${y}`
-    })
-    .join(' ')
+const W = 320
+const H = 120
+
+const geometry = computed(() => {
+  const pts = points.value
+  if (pts.length < 2) return null
+  const maxV = Math.max(...pts.map((p) => p.value), 1) * 1.12
+  const step = W / (pts.length - 1)
+  const xy = pts.map((p, i) => ({
+    x: Number((i * step).toFixed(1)),
+    y: Number((H - (p.value / maxV) * H).toFixed(1)),
+    ...p
+  }))
+  const line = xy.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ')
+  const area = `${line} L${W},${H} L0,${H} Z`
+  return { xy, line, area, maxV }
 })
 
-const areaPath = computed(() => {
-  if (!path.value) return ''
-  const h = 120
-  const w = 320
-  return `${path.value} L${w},${h} L0,${h} Z`
+const labels = computed(() => {
+  const pts = points.value
+  if (pts.length < 2) return []
+  const pick = [0, Math.floor((pts.length - 1) / 2), pts.length - 1]
+  return [...new Set(pick)].map((i) => pts[i].date.slice(5).replace('-', '.'))
 })
 </script>
 
 <template>
   <div class="chart-wrap">
-    <svg viewBox="0 0 320 130" preserveAspectRatio="none" style="width: 100%; height: 130px">
+    <svg viewBox="0 0 320 130" preserveAspectRatio="none" style="width: 100%; height: 130px; display: block">
       <defs>
         <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#a4e000" stop-opacity="0.35" />
+          <stop offset="0%" stop-color="#a4e000" stop-opacity="0.32" />
           <stop offset="100%" stop-color="#a4e000" stop-opacity="0.02" />
         </linearGradient>
       </defs>
-      <path v-if="areaPath" :d="areaPath" fill="url(#trendFill)" />
-      <path v-if="path" :d="path" fill="none" stroke="#a4e000" stroke-width="2.5" stroke-linecap="round" />
+      <template v-if="geometry">
+        <path :d="geometry.area" fill="url(#trendFill)" />
+        <path :d="geometry.line" fill="none" stroke="#a4e000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <circle :cx="geometry.xy[geometry.xy.length - 1].x" :cy="geometry.xy[geometry.xy.length - 1].y" r="4" fill="#a4e000" stroke="#fff" stroke-width="2" />
+      </template>
     </svg>
+    <div v-if="labels.length" class="chart-axis">
+      <span v-for="l in labels" :key="l">{{ l }}</span>
+    </div>
   </div>
 </template>

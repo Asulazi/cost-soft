@@ -1,6 +1,7 @@
 <script setup>
 import { reactive, ref, computed } from 'vue'
-import { X, Check, Package, Wallet, ImagePlus, CalendarDays, Tags, CircleDollarSign, Trash2 } from 'lucide-vue-next'
+import { X, Check, Package, Wallet, CalendarDays, Tags, CircleDollarSign, Trash2 } from 'lucide-vue-next'
+import CuteBox from './CuteBox.vue'
 import { STATUS } from '../db.js'
 
 const props = defineProps({
@@ -82,10 +83,10 @@ function submit() {
 
     <div class="photo-pick" @click="fileInput.click()">
       <img v-if="form.photo" :src="form.photo" alt="" />
-      <ImagePlus v-else :size="28" :stroke-width="1.5" />
+      <CuteBox v-else class="placeholder-box" />
       <input ref="fileInput" type="file" accept="image/*" style="display: none" @change="pickPhoto" />
     </div>
-    <div class="photo-hint">点击上传照片</div>
+    <div class="photo-hint">给它拍张照吧</div>
 
     <div class="form-section">
       <div class="field-row">

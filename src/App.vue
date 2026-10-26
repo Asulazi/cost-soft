@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { House, Heart, TrendingUp, Settings, Plus, ArrowUpDown, SlidersHorizontal } from 'lucide-vue-next'
+import { Heart, TrendingUp, Settings, Plus, ArrowUpDown, SlidersHorizontal } from 'lucide-vue-next'
 import { db, ensureSeed, getCategories, getSortConfig, saveSortConfig, daysUsed, dailyCost } from './db.js'
 import AssetCard from './components/AssetCard.vue'
 import AssetForm from './components/AssetForm.vue'
@@ -125,7 +125,7 @@ async function applySort(cfg) {
 }
 
 const tabs = [
-  { key: 'home', label: '有数', icon: House },
+  { key: 'home', label: '有数', icon: Heart },
   { key: 'trend', label: '趋势', icon: TrendingUp },
   { key: 'settings', label: '设置', icon: Settings }
 ]
@@ -187,7 +187,7 @@ const tabs = [
 
         <div class="asset-grid">
           <AssetCard v-for="a in sorted" :key="a.id" :asset="a" @open="openEdit" />
-          <div v-if="!sorted.length" class="empty-hint">还没有资产，点右下角 + 添加第一件</div>
+          <div v-if="!sorted.length" class="empty-hint">这里还空空的，点右下角 + 记录第一件宝贝吧</div>
         </div>
       </div>
     </template>
@@ -198,13 +198,13 @@ const tabs = [
       <SettingsView :categories="categories" @toast="showToast" @reload="loadAll" />
     </template>
 
-    <div class="tabbar">
+    <div v-if="!showForm" class="tabbar">
       <button v-for="t in tabs" :key="t.key" class="tab-item" :class="{ active: tab === t.key && !showForm }" @click="tab = t.key; showForm = false">
         <component :is="t.icon" :size="21" :stroke-width="1.8" />
         {{ t.label }}
       </button>
     </div>
-    <button class="fab" @click="openNew"><Plus :size="26" /></button>
+    <button v-if="!showForm" class="fab" @click="openNew"><Plus :size="26" /></button>
 
     <SortSheet v-if="showSort" :assets="sorted" :config="sortConfig" @close="showSort = false" @save="applySort" />
     <div v-if="toast" class="toast">{{ toast }}</div>
