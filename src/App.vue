@@ -1,0 +1,212 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { House, Heart, TrendingUp, Settings, Plus, ArrowUpDown, SlidersHorizontal } from 'lucide-vue-next'
+import { db, ensureSeed, getCategories, getSortConfig, saveSortConfig, daysUsed, dailyCost } from './db.js'
+import AssetCard from './components/AssetCard.vue'
+import AssetForm from './components/AssetForm.vue'
+import SortSheet from './components/SortSheet.vue'
+import TrendView from './components/TrendView.vue'
+import SettingsView from './components/SettingsView.vue'
+
+const ready = ref(false)
+const assets = ref([])
+const categories = ref([])
+const sortConfig = ref({ mode: 'custom', direction: 1 })
+const tab = ref('home')
+const showForm = ref(false)
+const editing = ref(null)
+const showSort = ref(false)
+const filter = ref('全部')
+const toast = ref('')
+
+let toastTimer = null
+function showToast(msg) {
+  toast.value = msg
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => (toast.value = ''), 2000)
+}
+
+async function loadAll() {
+  await ensureSeed()
+  assets.value = await db.assets.toArray()
+  categories.value = await getCategories()
+  sortConfig.value = await getSortConfig()
+  ready.value = true
+}
+
+onMounted(loadAll)
+
+const filters = computed(() => ['全部', '服役中', '已退役', '已卖出'])
+
+const filtered = computed(() => {
+  if (filter.value === '全部') return assets.value
+  return assets.value.filter((a) => a.status === filter.value)
+})
+
+const sorted = computed(() => {
+  const list = [...filtered.value]
+  const cfg = sortConfig.value
+  if (cfg.mode === 'custom') {
+    const order = cfg.order || []
+    list.sort((a, b) => {
+      const ia = order.indexOf(a.id)
+      const ib = order.indexOf(b.id)
+      if (ia === -1 && ib === -1) return (b.id || 0) - (a.id || 0)
+      if (ia === -1) return 1
+      if (ib === -1) return -1
+      return ia - ib
+    })
+  } else if (cfg.mode === 'dailyDesc') list.sort((a, b) => dailyCost(b) - dailyCost(a))
+  else if (cfg.mode === 'dailyAsc') list.sort((a, b) => dailyCost(a) - dailyCost(b))
+  else if (cfg.mode === 'priceDesc') list.sort((a, b) => b.price - a.price)
+  else if (cfg.mode === 'priceAsc') list.sort((a, b) => a.price - b.price)
+  else if (cfg.mode === 'daysDesc') list.sort((a, b) => daysUsed(b.purchaseDate, b.status, b.soldDate) - daysUsed(a.purchaseDate, a.status, a.soldDate))
+  else if (cfg.mode === 'daysAsc') list.sort((a, b) => daysUsed(a.purchaseDate, a.status, a.soldDate) - daysUsed(b.purchaseDate, b.status, b.soldDate))
+  else if (cfg.mode === 'dateDesc') list.sort((a, b) => (b.purchaseDate > a.purchaseDate ? 1 : -1))
+  else if (cfg.mode === 'dateAsc') list.sort((a, b) => (a.purchaseDate > b.purchaseDate ? 1 : -1))
+  return list
+})
+
+const totals = computed(() => {
+  const active = assets.value.filter((a) => a.status === '服役中')
+  const totalValue = active.reduce((s, a) => s + Number(a.price), 0)
+  const totalDaily = assets.value
+    .filter((a) => a.status !== '已卖出')
+    .reduce((s, a) => s + dailyCost(a), 0)
+  return {
+    value: totalValue,
+    daily: totalDaily,
+    counts: {
+      active: active.length,
+      retired: assets.value.filter((a) => a.status === '已退役').length,
+      sold: assets.value.filter((a) => a.status === '已卖出').length
+    }
+  }
+})
+
+function openNew() {
+  editing.value = null
+  showForm.value = true
+}
+
+function openEdit(asset) {
+  editing.value = asset
+  showForm.value = true
+}
+
+async function saveAsset(data) {
+  const maxOrder = assets.value.reduce((m, a) => Math.max(m, Number(a.order ?? 0)), 0)
+  if (editing.value) {
+    await db.assets.put({ ...editing.value, ...data, order: editing.value.order ?? maxOrder + 1 })
+    showToast('已保存')
+  } else {
+    await db.assets.add({ ...data, order: maxOrder + 1 })
+    showToast('已添加')
+  }
+  showForm.value = false
+  editing.value = null
+  await loadAll()
+}
+
+async function deleteAsset() {
+  if (!editing.value || !confirm('确定删除该资产吗？')) return
+  await db.assets.delete(editing.value.id)
+  showToast('已删除')
+  showForm.value = false
+  editing.value = null
+  await loadAll()
+}
+
+async function applySort(cfg) {
+  await saveSortConfig(cfg)
+  sortConfig.value = cfg
+  showSort.value = false
+  showToast('排序已更新')
+}
+
+const tabs = [
+  { key: 'home', label: '有数', icon: House },
+  { key: 'trend', label: '趋势', icon: TrendingUp },
+  { key: 'settings', label: '设置', icon: Settings }
+]
+</script>
+
+<template>
+  <div v-if="ready">
+    <template v-if="showForm">
+      <AssetForm
+        :asset="editing"
+        :categories="categories"
+        @close="showForm = false; editing = null"
+        @save="saveAsset"
+        @delete="deleteAsset"
+        @toast="showToast"
+      />
+    </template>
+    <template v-else-if="tab === 'home'">
+      <div class="view">
+        <div class="topbar">
+          <h1>有数</h1>
+          <div class="topbar-actions">
+            <button class="icon-btn" @click="showSort = true"><ArrowUpDown :size="20" /></button>
+            <button class="icon-btn" @click="tab = 'settings'"><SlidersHorizontal :size="20" /></button>
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="stat-head">
+            <h2>资产总览</h2>
+            <span class="badge">{{ assets.length }}/{{ assets.length }}</span>
+          </div>
+          <div class="stat-grid">
+            <div>
+              <div class="stat-label">总资产</div>
+              <div class="stat-value">¥{{ totals.value.toFixed(2) }}</div>
+            </div>
+            <div>
+              <div class="stat-label">日均成本</div>
+              <div class="stat-value">¥{{ totals.daily.toFixed(2) }}</div>
+            </div>
+          </div>
+          <div class="status-row">
+            <div class="status-cell"><strong>{{ totals.counts.active }}</strong>服役中</div>
+            <div class="status-cell"><strong>{{ totals.counts.retired }}</strong>已退役</div>
+            <div class="status-cell"><strong>{{ totals.counts.sold }}</strong>已卖出</div>
+          </div>
+          <div class="status-bars">
+            <span class="bar" :class="{ dim: !totals.counts.active }"></span>
+            <span class="bar" :class="{ dim: !totals.counts.retired }"></span>
+            <span class="bar" :class="{ dim: !totals.counts.sold }"></span>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <button v-for="f in filters" :key="f" class="chip" :class="{ active: filter === f }" @click="filter = f">{{ f }}</button>
+          <span class="filter-spacer"></span>
+        </div>
+
+        <div class="asset-grid">
+          <AssetCard v-for="a in sorted" :key="a.id" :asset="a" @open="openEdit" />
+          <div v-if="!sorted.length" class="empty-hint">还没有资产，点右下角 + 添加第一件</div>
+        </div>
+      </div>
+    </template>
+    <template v-else-if="tab === 'trend'">
+      <TrendView :assets="assets" />
+    </template>
+    <template v-else>
+      <SettingsView :categories="categories" @toast="showToast" @reload="loadAll" />
+    </template>
+
+    <div class="tabbar">
+      <button v-for="t in tabs" :key="t.key" class="tab-item" :class="{ active: tab === t.key && !showForm }" @click="tab = t.key; showForm = false">
+        <component :is="t.icon" :size="21" :stroke-width="1.8" />
+        {{ t.label }}
+      </button>
+    </div>
+    <button class="fab" @click="openNew"><Plus :size="26" /></button>
+
+    <SortSheet v-if="showSort" :assets="sorted" :config="sortConfig" @close="showSort = false" @save="applySort" />
+    <div v-if="toast" class="toast">{{ toast }}</div>
+  </div>
+</template>
