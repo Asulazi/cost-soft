@@ -52,7 +52,7 @@ await page.screenshot({ path: 'shots/06-sorted.png' })
 
 // seed multi-year data directly through Dexie to verify the trend chart
 await page.evaluate(async () => {
-  const { db, STATUS } = await import('/src/db.js')
+  const { db, STATUS } = await import('/cost-soft/src/db.js')
   await db.assets.bulkAdd([
     { name: '旧椅子', price: 400, purchaseDate: '2023-03-10', category: '家居', tags: [], status: STATUS.ACTIVE, rule: '按天', photo: null, order: 90 },
     { name: '旧相机', price: 1200, purchaseDate: '2023-11-20', category: '摄影', tags: [], status: STATUS.ACTIVE, rule: '按天', photo: null, order: 91 },

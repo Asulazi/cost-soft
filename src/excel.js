@@ -31,7 +31,7 @@ export function exportAssetsExcel(assets) {
   ws['!cols'] = [{ wch: 24 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 20 }, { wch: 8 }, { wch: 12 }]
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, '资产')
-  XLSX.writeFile(wb, `有数资产-${today()}.xlsx`)
+  XLSX.writeFile(wb, `asulazi资产-${today()}.xlsx`)
 }
 
 export function downloadTemplate() {
@@ -60,7 +60,7 @@ export function downloadTemplate() {
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, '资产')
   XLSX.utils.book_append_sheet(wb, wsGuide, '填写说明')
-  XLSX.writeFile(wb, '有数导入模板.xlsx')
+  XLSX.writeFile(wb, 'asulazi导入模板.xlsx')
 }
 
 export async function importAssetsExcel(file) {

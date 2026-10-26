@@ -135,7 +135,7 @@ async function applySort(cfg) {
 }
 
 const tabs = [
-  { key: 'home', label: '有数', icon: Heart },
+  { key: 'home', label: 'asulazi', icon: Heart },
   { key: 'trend', label: '趋势', icon: TrendingUp },
   { key: 'settings', label: '设置', icon: Settings }
 ]
@@ -156,7 +156,7 @@ const tabs = [
     <template v-else-if="tab === 'home'">
       <div class="view">
         <div class="topbar">
-          <h1>有数</h1>
+          <h1>asulazi</h1>
           <div class="topbar-actions">
             <button class="icon-btn" @click="showSort = true"><ArrowUpDown :size="20" /></button>
             <button class="icon-btn" @click="tab = 'settings'"><SlidersHorizontal :size="20" /></button>

@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['apple-touch-icon.png', 'favicon.svg'],
       manifest: {
-        name: '有数',
-        short_name: '有数',
+        name: 'asulazi',
+        short_name: 'asulazi',
         description: '本地资产管理与日均成本记录',
         lang: 'zh-CN',
         theme_color: '#f2f3ee',
