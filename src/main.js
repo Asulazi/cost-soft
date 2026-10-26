@@ -1,7 +1,15 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import './style.css'
-import 'virtual:pwa-register'
+import { registerSW } from 'virtual:pwa-register'
+
+registerSW({
+  immediate: true,
+  onNeedRefresh() {
+    window.sessionStorage.setItem('asulazi-auto-refresh', String(Date.now()))
+    window.location.reload()
+  }
+})
 
 if (import.meta.env.DEV) {
   import('./db.js').then(({ db }) => {
