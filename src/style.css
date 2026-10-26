@@ -10,6 +10,7 @@
   --line: #e4e5de;
   --radius: 10px;
   --shadow: 0 1px 3px rgba(22, 24, 15, 0.05);
+  --tab-min-width: 64px;
 }
 
 * {
@@ -26,7 +27,7 @@ body {
   font-family: -apple-system, 'SF Pro Text', 'PingFang SC', sans-serif;
   background: var(--bg);
   color: var(--ink);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
 }
@@ -57,7 +58,7 @@ a {
 .view {
   max-width: 520px;
   margin: 0 auto;
-  padding: 18px 18px 110px;
+  padding: 14px 18px 100px;
 }
 
 .topbar {
@@ -68,7 +69,7 @@ a {
 }
 
 .topbar h1 {
-  font-size: 27px;
+  font-size: 23px;
   font-weight: 700;
   letter-spacing: 0;
 }
@@ -111,12 +112,12 @@ a {
 }
 
 .stat-head h2 {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
 }
 
 .badge {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--ink-soft);
   background: var(--bg);
   border-radius: 999px;
@@ -137,7 +138,7 @@ a {
 }
 
 .stat-value {
-  font-size: 25px;
+  font-size: 21px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -194,7 +195,7 @@ a {
   border-radius: 999px;
   background: var(--surface);
   color: var(--ink-soft);
-  font-size: 15px;
+  font-size: 14px;
   box-shadow: var(--shadow);
 }
 
@@ -271,13 +272,14 @@ a {
 
 .asset-title-row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 4px;
 }
 
 .asset-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -286,7 +288,7 @@ a {
 
 .status-tag {
   flex: 0 0 auto;
-  font-size: 12px;
+  font-size: 11px;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -307,11 +309,16 @@ a {
   font-size: 13px;
   color: var(--ink-soft);
   margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+
+.days-part {
+  white-space: nowrap;
 }
 
 .asset-cost {
   margin-top: auto;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -341,6 +348,7 @@ a {
   box-shadow: 0 4px 20px rgba(22, 24, 15, 0.1);
   display: flex;
   padding: 6px;
+  max-width: calc(100vw - 24px);
   z-index: 30;
 }
 
@@ -349,10 +357,12 @@ a {
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  padding: 8px 22px;
+  padding: 7px 10px;
+  min-width: var(--tab-min-width);
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-faint);
+  white-space: nowrap;
 }
 
 .tab-item.active {
@@ -901,7 +911,7 @@ a {
 }
 
 .trend-sub .stat-value {
-  font-size: 22px;
+  font-size: 19px;
 }
 
 .trend-legend {

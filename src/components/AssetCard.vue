@@ -28,7 +28,7 @@ function fmt(n) {
       <div class="asset-meta">
         ¥{{ fmt(asset.price) }}
         <template v-if="latestMarketPrice(asset)"> · 市场价 ¥{{ fmt(latestMarketPrice(asset).price) }}</template>
-        · {{ daysUsed(asset.purchaseDate, asset.status, asset.soldDate) }}天
+        <span class="days-part">· {{ daysUsed(asset.purchaseDate, asset.status, asset.soldDate) }}天</span>
       </div>
       <div class="asset-cost">¥{{ fmt(dailyCost(asset)) }}/天</div>
     </div>
