@@ -9,4 +9,9 @@ if (import.meta.env.DEV) {
   })
 }
 
+// iOS standalone web app can drift horizontally when the keyboard opens; snap back.
+window.addEventListener('scroll', () => {
+  if (window.scrollX !== 0) window.scrollTo(0, window.scrollY)
+})
+
 createApp(App).mount('#app')

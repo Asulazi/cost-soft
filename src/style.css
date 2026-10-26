@@ -32,6 +32,7 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   overscroll-behavior-x: none;
+  touch-action: pan-y;
 }
 
 button {
@@ -60,7 +61,7 @@ a {
 .view {
   max-width: 520px;
   margin: 0 auto;
-  padding: 14px 18px 100px;
+  padding: 14px 18px calc(100px + env(safe-area-inset-bottom));
 }
 
 .topbar {
@@ -328,7 +329,7 @@ a {
 .fab {
   position: fixed;
   right: 22px;
-  bottom: 96px;
+  bottom: calc(96px + env(safe-area-inset-bottom));
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -344,7 +345,7 @@ a {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
   background: var(--surface);
   border-radius: 999px;
   box-shadow: 0 4px 20px rgba(22, 24, 15, 0.1);
@@ -990,7 +991,7 @@ a {
 
 .toast {
   position: fixed;
-  bottom: 100px;
+  bottom: calc(100px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   background: var(--ink);
