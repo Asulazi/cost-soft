@@ -1,8 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Heart, TrendingUp, Settings, Plus, ArrowUpDown, SlidersHorizontal } from 'lucide-vue-next'
-import { db, ensureSeed, getCategories, getSortConfig, saveSortConfig, daysUsed, dailyCost } from './db.js'
+import { Heart, TrendingUp, Settings, Plus, ArrowUpDown, LayoutGrid, Grid2X2, Grid3X3, Rows3 } from 'lucide-vue-next'
+import { db, ensureSeed, getCategories, getSortConfig, saveSortConfig, getViewConfig, saveViewConfig, daysUsed, dailyCost } from './db.js'
 import AssetCard from './components/AssetCard.vue'
+import AssetListRow from './components/AssetListRow.vue'
 import AssetForm from './components/AssetForm.vue'
 import SortSheet from './components/SortSheet.vue'
 import TrendView from './components/TrendView.vue'
@@ -12,6 +13,7 @@ const ready = ref(false)
 const assets = ref([])
 const categories = ref([])
 const sortConfig = ref({ mode: 'custom', direction: 1 })
+const viewConfig = ref({ mode: 'grid', cols: 2 })
 const tab = ref('home')
 const showForm = ref(false)
 const editing = ref(null)
@@ -31,6 +33,7 @@ async function loadAll() {
   assets.value = await db.assets.toArray()
   categories.value = await getCategories()
   sortConfig.value = await getSortConfig()
+  viewConfig.value = await getViewConfig()
   ready.value = true
 }
 
@@ -105,17 +108,23 @@ function openEdit(asset) {
 }
 
 async function saveAsset(data) {
-  const maxOrder = assets.value.reduce((m, a) => Math.max(m, Number(a.order ?? 0)), 0)
-  if (editing.value) {
-    await db.assets.put({ ...editing.value, ...data, order: editing.value.order ?? maxOrder + 1 })
-    showToast('已保存')
-  } else {
-    await db.assets.add({ ...data, order: maxOrder + 1 })
-    showToast('已添加')
+  try {
+    const clean = JSON.parse(JSON.stringify(data))
+    const maxOrder = assets.value.reduce((m, a) => Math.max(m, Number(a.order ?? 0)), 0)
+    if (editing.value) {
+      await db.assets.put({ ...JSON.parse(JSON.stringify(editing.value)), ...clean, order: editing.value.order ?? maxOrder + 1 })
+      showToast('已保存')
+    } else {
+      await db.assets.add({ ...clean, order: maxOrder + 1 })
+      showToast('已添加')
+    }
+    showForm.value = false
+    editing.value = null
+    await loadAll()
+  } catch (e) {
+    console.error('保存失败:', e?.message || e)
+    showToast('保存失败: ' + (e?.message || e))
   }
-  showForm.value = false
-  editing.value = null
-  await loadAll()
 }
 
 async function deleteAsset() {
@@ -128,11 +137,43 @@ async function deleteAsset() {
 }
 
 async function applySort(cfg) {
-  await saveSortConfig(cfg)
-  sortConfig.value = cfg
-  showSort.value = false
-  showToast('排序已更新')
+  try {
+    await saveSortConfig(JSON.parse(JSON.stringify(cfg)))
+    sortConfig.value = cfg
+    showSort.value = false
+    showToast('排序已更新')
+  } catch (e) {
+    console.error('保存排序失败:', e?.message || e)
+  }
 }
+
+async function setView(cfg) {
+  try {
+    viewConfig.value = cfg
+    await saveViewConfig(JSON.parse(JSON.stringify(cfg)))
+  } catch (e) {
+    console.error('保存视图失败:', e?.message || e)
+  }
+}
+
+const viewIcons = { 2: Grid2X2, 3: Grid3X3, 5: Rows3 }
+
+const viewIcon = computed(() => (viewConfig.value.mode === 'list' ? LayoutGrid : viewIcons[viewConfig.value.cols] || Grid2X2))
+
+function cycleView() {
+  const seq = [
+    { mode: 'grid', cols: 2 },
+    { mode: 'grid', cols: 3 },
+    { mode: 'grid', cols: 5 },
+    { mode: 'list', cols: 2 }
+  ]
+  const i = seq.findIndex((v) => v.mode === viewConfig.value.mode && v.cols === viewConfig.value.cols)
+  setView(seq[(i + 1) % seq.length])
+}
+
+const gridStyle = computed(() =>
+  viewConfig.value.mode === 'grid' ? { gridTemplateColumns: `repeat(${viewConfig.value.cols}, 1fr)` } : {}
+)
 
 const tabs = [
   { key: 'home', label: 'asulazi', icon: Heart },
@@ -159,7 +200,7 @@ const tabs = [
           <h1>asulazi</h1>
           <div class="topbar-actions">
             <button class="icon-btn" @click="showSort = true"><ArrowUpDown :size="20" /></button>
-            <button class="icon-btn" @click="tab = 'settings'"><SlidersHorizontal :size="20" /></button>
+            <button class="icon-btn" @click="cycleView"><component :is="viewIcon" :size="20" /></button>
           </div>
         </div>
 
@@ -193,10 +234,15 @@ const tabs = [
         <div class="filter-row">
           <button v-for="f in filters" :key="f" class="chip" :class="{ active: filter === f }" @click="filter = f">{{ f }}</button>
           <span class="filter-spacer"></span>
+          <span class="view-badge" @click="cycleView"><component :is="viewIcon" :size="16" /></span>
         </div>
 
-        <div class="asset-grid">
+        <div v-if="viewConfig.mode === 'grid'" class="asset-grid" :style="gridStyle">
           <AssetCard v-for="a in sorted" :key="a.id" :asset="a" @open="openEdit" />
+          <div v-if="!sorted.length" class="empty-hint">这里还空空的，点右下角 + 记录第一件宝贝吧</div>
+        </div>
+        <div v-else class="list-wrap">
+          <AssetListRow v-for="a in sorted" :key="a.id" :asset="a" @open="openEdit" />
           <div v-if="!sorted.length" class="empty-hint">这里还空空的，点右下角 + 记录第一件宝贝吧</div>
         </div>
       </div>
@@ -214,7 +260,7 @@ const tabs = [
         {{ t.label }}
       </button>
     </div>
-    <button v-if="!showForm" class="fab" @click="openNew"><Plus :size="26" /></button>
+    <button v-if="!showForm" class="fab" @click="openNew"><Plus :size="24" /></button>
 
     <SortSheet v-if="showSort" :assets="sorted" :config="sortConfig" @close="showSort = false" @save="applySort" />
     <div v-if="toast" class="toast">{{ toast }}</div>

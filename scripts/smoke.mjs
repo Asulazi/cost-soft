@@ -1,17 +1,15 @@
 import { chromium } from 'playwright'
 
 const browser = await chromium.launch()
-const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
+const page = await browser.newPage({ viewport: { width: 430, height: 932 }, locale: 'zh-CN' })
 const errors = []
 page.on('pageerror', (e) => errors.push('pageerror: ' + (e.stack || e.message).slice(0, 400)))
 page.on('console', (m) => {
   if (m.type() === 'error') errors.push('console: ' + m.text())
 })
-page.on('console', (m) => {
-  if (m.type() === 'error') errors.push('console: ' + m.text())
-})
 
-await page.goto('http://localhost:5173/', { waitUntil: 'networkidle' })
+await page.goto('http://localhost:5173/cost-soft/', { waitUntil: 'domcontentloaded' })
+await page.waitForTimeout(2500)
 await page.screenshot({ path: 'shots/01-home.png', fullPage: false })
 
 await page.click('.fab')
@@ -20,17 +18,17 @@ await page.click('.date-trigger')
 await page.waitForTimeout(300)
 await page.screenshot({ path: 'shots/02b-datepicker.png' })
 await page.click('.round-btn.main')
-await page.fill('input[placeholder="请输入资产名称"]', '测试炒锅')
-await page.fill('input[placeholder="请输入物品价格"]', '98')
+await page.fill('input.field-input >> nth=0', '测试炒锅')
+await page.fill('input.field-input[type="number"]', '98')
 await page.click('.switch-row:has-text("置顶") .switch')
-await page.click('button.add-inline:has-text("")')
+await page.click('button.add-inline >> nth=0')
 await page.click('.save-btn')
 await page.waitForTimeout(600)
 await page.screenshot({ path: 'shots/03-after-add.png' })
 
 await page.click('.fab')
-await page.fill('input[placeholder="请输入资产名称"]', '测试路由器')
-await page.fill('input[placeholder="请输入物品价格"]', '152.94')
+await page.fill('input.field-input >> nth=0', '测试路由器')
+await page.fill('input.field-input[type="number"]', '152.94')
 await page.click('.save-btn')
 await page.waitForTimeout(600)
 await page.screenshot({ path: 'shots/04-two-assets.png' })

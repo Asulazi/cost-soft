@@ -34,6 +34,10 @@ export async function ensureSeed() {
       value: { mode: 'custom', direction: 1, updatedAt: Date.now() }
     })
   }
+  const view = await db.settings.get('homeView')
+  if (!view) {
+    await db.settings.put({ key: 'homeView', value: { mode: 'grid', cols: 2 } })
+  }
 }
 
 export async function getCategories() {
@@ -55,6 +59,15 @@ export async function getSortConfig() {
 
 export async function saveSortConfig(config) {
   await db.settings.put({ key: 'assetSort', value: { ...config, updatedAt: Date.now() } })
+}
+
+export async function getViewConfig() {
+  const row = await db.settings.get('homeView')
+  return row ? row.value : { mode: 'grid', cols: 2 }
+}
+
+export async function saveViewConfig(config) {
+  await db.settings.put({ key: 'homeView', value: { ...config, updatedAt: Date.now() } })
 }
 
 export function daysUsed(purchaseDate, status, soldDate = null) {

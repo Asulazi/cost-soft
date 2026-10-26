@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref, computed } from 'vue'
-import { X, Check, Package, Wallet, Tags, CalendarDays, Trash2, Target, Coins, TrendingUp, Paperclip, Pin, PiggyBank, CalendarX2, PackageX, ArrowUpFromLine, StickyNote, ImagePlus, Plus } from 'lucide-vue-next'
+import { X, Check, Package, Wallet, Tag, Shapes, CalendarDays, Trash2, Target, Coins, TrendingUp, Paperclip, Pin, PiggyBank, CalendarX2, PackageX, ArrowUpFromLine, StickyNote, ImagePlus, Plus } from 'lucide-vue-next'
 import CuteBox from './CuteBox.vue'
 import DateField from './DateField.vue'
 import { STATUS } from '../db.js'
@@ -30,6 +30,7 @@ const form = reactive({
   excludeFromTotal: props.asset?.excludeFromTotal || false,
   excludeFromDaily: props.asset?.excludeFromDaily || false,
   note: props.asset?.note || '',
+  notePhotos: Array.isArray(props.asset?.notePhotos) ? [...props.asset.notePhotos] : [],
   photo: props.asset?.photo || null
 })
 
@@ -60,6 +61,15 @@ async function pickPhoto(e) {
   if (!file) return
   const dataUrl = await compress(file)
   form.photo = dataUrl
+}
+
+async function pickNotePhotos(e) {
+  const files = Array.from(e.target.files || [])
+  for (const f of files) {
+    const url = await compress(f)
+    if (url) form.notePhotos.push(url)
+  }
+  e.target.value = ''
 }
 
 function compress(file) {
@@ -142,7 +152,7 @@ function submit() {
         <DateField v-model="form.purchaseDate" />
       </div>
       <div class="field-row">
-        <span class="field-icon"><Tags :size="18" /></span>
+        <span class="field-icon"><Shapes :size="18" /></span>
         <span class="field-label">类别</span>
         <select v-model="form.category" class="field-input" style="appearance: auto; text-align: right">
           <option v-for="c in categories" :key="c.id ?? c.name" :value="c.name">{{ c.name }}</option>
@@ -150,7 +160,7 @@ function submit() {
         </select>
       </div>
       <div class="field-row">
-        <span class="field-icon"><Tags :size="18" /></span>
+        <span class="field-icon"><Tag :size="18" /></span>
         <span class="field-label">标签</span>
         <input v-model="form.tags" class="field-input" placeholder="空格分隔，可留空" />
       </div>
@@ -255,6 +265,16 @@ function submit() {
         备注
       </div>
       <textarea v-model="form.note" class="note-input" placeholder="输入备注" rows="3"></textarea>
+      <div class="note-photos">
+        <div v-for="(p, i) in form.notePhotos" :key="i" class="note-thumb">
+          <img :src="p" alt="" />
+          <button class="thumb-del" @click="form.notePhotos.splice(i, 1)"><X :size="12" /></button>
+        </div>
+        <label class="note-add">
+          <ImagePlus :size="18" />
+          <input type="file" accept="image/*" multiple style="display: none" @change="pickNotePhotos" />
+        </label>
+      </div>
     </div>
 
     <button v-if="asset" class="set-row danger" style="border-radius: var(--radius); margin-top: 6px" @click="$emit('delete')">
