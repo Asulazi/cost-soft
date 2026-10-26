@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Heart, TrendingUp, Settings, Plus, ArrowUpDown, LayoutGrid, Grid2X2, Grid3X3, Rows3 } from 'lucide-vue-next'
+import { Heart, TrendingUp, Settings, Plus, ArrowUpDown, LayoutGrid, Grid2X2, Grid3X3 } from 'lucide-vue-next'
 import { db, ensureSeed, getCategories, getSortConfig, saveSortConfig, getViewConfig, saveViewConfig, daysUsed, dailyCost } from './db.js'
 import AssetCard from './components/AssetCard.vue'
 import AssetListRow from './components/AssetListRow.vue'
@@ -156,7 +156,7 @@ async function setView(cfg) {
   }
 }
 
-const viewIcons = { 2: Grid2X2, 3: Grid3X3, 5: Rows3 }
+const viewIcons = { 2: Grid2X2, 3: Grid3X3 }
 
 const viewIcon = computed(() => (viewConfig.value.mode === 'list' ? LayoutGrid : viewIcons[viewConfig.value.cols] || Grid2X2))
 
@@ -164,7 +164,6 @@ function cycleView() {
   const seq = [
     { mode: 'grid', cols: 2 },
     { mode: 'grid', cols: 3 },
-    { mode: 'grid', cols: 5 },
     { mode: 'list', cols: 2 }
   ]
   const i = seq.findIndex((v) => v.mode === viewConfig.value.mode && v.cols === viewConfig.value.cols)

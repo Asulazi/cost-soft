@@ -63,7 +63,9 @@ export async function saveSortConfig(config) {
 
 export async function getViewConfig() {
   const row = await db.settings.get('homeView')
-  return row ? row.value : { mode: 'grid', cols: 2 }
+  const cfg = row ? row.value : { mode: 'grid', cols: 2 }
+  if (cfg.mode === 'grid' && cfg.cols === 5) return { mode: 'grid', cols: 2 }
+  return cfg
 }
 
 export async function saveViewConfig(config) {
