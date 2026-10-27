@@ -1,11 +1,13 @@
 <script setup>
-import { daysUsed, dailyCost, latestMarketPrice } from '../db.js'
+import { daysUsed, dailyCost, targetInfo } from '../db.js'
 import CuteBox from './CuteBox.vue'
 
 const props = defineProps({
   asset: { type: Object, required: true }
 })
 defineEmits(['open'])
+
+const target = targetInfo(props.asset)
 
 function fmt(n) {
   return Number(n).toFixed(2)
@@ -28,6 +30,10 @@ function fmt(n) {
       <div class="asset-cost">¥{{ fmt(dailyCost(asset)) }}/天</div>
       <div class="asset-meta">
         ¥{{ fmt(asset.price) }}<span class="days-part"> · 已使用{{ daysUsed(asset.purchaseDate, asset.status, asset.soldDate) }}天</span>
+      </div>
+      <div v-if="target" class="asset-target">
+        <div class="target-track"><span class="target-fill" :style="{ width: target.progress + '%' }"></span></div>
+        <span class="target-text">还剩 {{ target.remainingDays }} 天</span>
       </div>
     </div>
   </div>

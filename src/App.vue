@@ -5,6 +5,7 @@ import { db, ensureSeed, getCategories, getSortConfig, saveSortConfig, getViewCo
 import AssetCard from './components/AssetCard.vue'
 import AssetListRow from './components/AssetListRow.vue'
 import AssetForm from './components/AssetForm.vue'
+import AssetDetail from './components/AssetDetail.vue'
 import SortSheet from './components/SortSheet.vue'
 import TrendView from './components/TrendView.vue'
 import SettingsView from './components/SettingsView.vue'
@@ -16,6 +17,7 @@ const sortConfig = ref({ mode: 'custom', direction: 1 })
 const viewConfig = ref({ mode: 'grid', cols: 2 })
 const tab = ref('home')
 const showForm = ref(false)
+const detailAsset = ref(null)
 const editing = ref(null)
 const showSort = ref(false)
 const filter = ref('全部')
@@ -102,7 +104,12 @@ function openNew() {
   showForm.value = true
 }
 
+function openDetail(asset) {
+  detailAsset.value = asset
+}
+
 function openEdit(asset) {
+  detailAsset.value = null
   editing.value = asset
   showForm.value = true
 }
@@ -120,6 +127,7 @@ async function saveAsset(data) {
     }
     showForm.value = false
     editing.value = null
+    detailAsset.value = null
     await loadAll()
   } catch (e) {
     console.error('保存失败:', e?.message || e)
@@ -133,6 +141,7 @@ async function deleteAsset() {
   showToast('已删除')
   showForm.value = false
   editing.value = null
+  detailAsset.value = null
   await loadAll()
 }
 
@@ -183,7 +192,14 @@ const tabs = [
 
 <template>
   <div v-if="ready">
-    <template v-if="showForm">
+    <template v-if="detailAsset">
+      <AssetDetail
+        :asset="detailAsset"
+        @close="detailAsset = null"
+        @edit="openEdit(detailAsset)"
+      />
+    </template>
+    <template v-else-if="showForm">
       <AssetForm
         :asset="editing"
         :categories="categories"
@@ -237,11 +253,11 @@ const tabs = [
         </div>
 
         <div v-if="viewConfig.mode === 'grid'" class="asset-grid" :style="gridStyle">
-          <AssetCard v-for="a in sorted" :key="a.id" :asset="a" @open="openEdit" />
+          <AssetCard v-for="a in sorted" :key="a.id" :asset="a" @open="openDetail" />
           <div v-if="!sorted.length" class="empty-hint">这里还空空的，点右下角 + 记录第一件宝贝吧</div>
         </div>
         <div v-else class="list-wrap">
-          <AssetListRow v-for="a in sorted" :key="a.id" :asset="a" @open="openEdit" />
+          <AssetListRow v-for="a in sorted" :key="a.id" :asset="a" @open="openDetail" />
           <div v-if="!sorted.length" class="empty-hint">这里还空空的，点右下角 + 记录第一件宝贝吧</div>
         </div>
       </div>
@@ -253,8 +269,8 @@ const tabs = [
       <SettingsView :categories="categories" @toast="showToast" @reload="loadAll" />
     </template>
 
-    <div v-if="!showForm" class="tabbar with-fab">
-      <button v-for="t in tabs" :key="t.key" class="tab-item" :class="{ active: tab === t.key && !showForm }" @click="tab = t.key; showForm = false">
+    <div v-if="!showForm && !detailAsset" class="tabbar with-fab">
+      <button v-for="t in tabs" :key="t.key" class="tab-item" :class="{ active: tab === t.key && !showForm && !detailAsset }" @click="tab = t.key; showForm = false; detailAsset = null">
         <component :is="t.icon" :size="21" :stroke-width="1.8" />
         {{ t.label }}
       </button>

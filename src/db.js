@@ -124,3 +124,25 @@ export function latestMarketPrice(asset) {
   if (!Array.isArray(asset.marketPrices) || !asset.marketPrices.length) return null
   return [...asset.marketPrices].sort((a, b) => (a.date > b.date ? -1 : 1))[0]
 }
+
+export function targetInfo(asset) {
+  const target = Number(asset.targetValue || 0)
+  if (!target || target <= 0) return null
+  const current = dailyCost(asset)
+  const days = daysUsed(asset.purchaseDate, asset.status, asset.soldDate)
+  const requiredDays = Math.max(days, Math.ceil(totalCost(asset) / target))
+  const remainingDays = Math.max(0, requiredDays - days)
+  const progress = Math.min(100, Math.max(0, (target / current) * 100))
+  const targetDate = new Date()
+  targetDate.setDate(targetDate.getDate() + remainingDays)
+  return {
+    target,
+    current,
+    days,
+    requiredDays,
+    remainingDays,
+    progress,
+    targetDate: targetDate.toISOString().slice(0, 10),
+    reached: remainingDays === 0
+  }
+}
