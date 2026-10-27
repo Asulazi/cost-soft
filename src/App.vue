@@ -143,9 +143,10 @@ async function saveAsset(data) {
   }
 }
 
-async function deleteAsset() {
-  if (!editing.value || !confirm('确定删除该资产吗？')) return
-  await db.assets.delete(editing.value.id)
+async function deleteAsset(asset = null) {
+  const target = asset || editing.value
+  if (!target || !confirm('确定删除该资产吗？')) return
+  await db.assets.delete(target.id)
   showToast('已删除')
   showForm.value = false
   editing.value = null
@@ -211,6 +212,7 @@ const tabs = [
         :asset="detailAsset"
         @close="detailAsset = null"
         @edit="openEdit(detailAsset)"
+        @delete="deleteAsset(detailAsset)"
       />
     </template>
     <template v-else-if="showForm">
@@ -219,7 +221,6 @@ const tabs = [
         :categories="categories"
         @close="showForm = false; editing = null"
         @save="saveAsset"
-        @delete="deleteAsset"
         @toast="showToast"
       />
     </template>

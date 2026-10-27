@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref, computed } from 'vue'
-import { X, Check, Package, Wallet, Tag, Shapes, CalendarDays, Trash2, Target, Coins, TrendingUp, Paperclip, Pin, PiggyBank, CalendarX2, PackageX, ArrowUpFromLine, StickyNote, ImagePlus, Plus } from 'lucide-vue-next'
+import { X, Check, Package, Wallet, Tag, Shapes, CalendarDays, Target, Coins, TrendingUp, Paperclip, Pin, PiggyBank, CalendarX2, PackageX, ArrowUpFromLine, StickyNote, ImagePlus, Plus } from 'lucide-vue-next'
 import CuteBox from './CuteBox.vue'
 import DateField from './DateField.vue'
 import { STATUS } from '../db.js'
@@ -9,7 +9,7 @@ const props = defineProps({
   asset: { type: Object, default: null },
   categories: { type: Array, default: () => [] }
 })
-const emit = defineEmits(['close', 'save', 'delete', 'toast'])
+const emit = defineEmits(['close', 'save', 'toast'])
 
 const form = reactive({
   name: props.asset?.name || '',
@@ -294,8 +294,5 @@ function submit() {
       </div>
     </div>
 
-    <button v-if="asset" class="set-row danger" style="border-radius: var(--radius); margin-top: 6px" @click="$emit('delete')">
-      <Trash2 :size="18" /> 删除该资产
-    </button>
   </div>
 </template>

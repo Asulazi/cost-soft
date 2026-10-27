@@ -1,12 +1,12 @@
 <script setup>
 import { computed } from 'vue'
-import { X, SquarePen, TrendingDown } from 'lucide-vue-next'
+import { X, SquarePen, Trash2 } from 'lucide-vue-next'
 import { daysUsed, dailyCost, totalCost, targetInfo } from '../db.js'
 
 const props = defineProps({
   asset: { type: Object, required: true }
 })
-defineEmits(['close', 'edit'])
+defineEmits(['close', 'edit', 'delete'])
 
 const target = computed(() => targetInfo(props.asset))
 
@@ -69,5 +69,9 @@ function formatDate(value) {
       <div v-if="asset.soldDate" class="detail-row"><span>售出日期</span><strong>{{ formatDate(asset.soldDate) }}</strong></div>
       <div v-if="asset.note" class="detail-note">{{ asset.note }}</div>
     </div>
+
+    <button class="set-row danger detail-delete" @click="$emit('delete')">
+      <Trash2 :size="18" /> 删除该资产
+    </button>
   </div>
 </template>

@@ -739,6 +739,12 @@ a {
   white-space: pre-wrap;
 }
 
+.detail-delete {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-top: 6px;
+}
+
 .photo-pick {
   width: 96px;
   height: 96px;
