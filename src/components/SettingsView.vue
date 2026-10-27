@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { Download, Upload, FileDown, FolderPlus, ShieldCheck, Trash2, ChevronRight, Plus, X, Settings2 } from 'lucide-vue-next'
+import { Download, Upload, FileDown, FolderPlus, ShieldCheck, Trash2, ChevronRight, Plus, X } from 'lucide-vue-next'
 import { db, saveCategories } from '../db.js'
 
 const props = defineProps({
@@ -114,12 +114,6 @@ async function clearAll() {
         <ShieldCheck :size="18" /> 数据完全存储在本机
       </div>
       <div class="set-hint">所有资产记录只保存在此设备的浏览器数据库中，不联网上传，可随时导出 Excel 备份。</div>
-    </div>
-
-    <div class="set-section">
-      <div class="set-row" style="cursor: default">
-        <Settings2 :size="18" /> 操作
-      </div>
       <button class="set-row danger" @click="clearAll">
         <Trash2 :size="18" /> 清空全部资产
         <ChevronRight class="chevron" :size="16" />
