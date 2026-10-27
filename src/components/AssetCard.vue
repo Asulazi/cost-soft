@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import { daysUsed, dailyCost, targetInfo } from '../db.js'
 import CuteBox from './CuteBox.vue'
 
@@ -7,7 +8,7 @@ const props = defineProps({
 })
 defineEmits(['open'])
 
-const target = targetInfo(props.asset)
+const target = computed(() => targetInfo(props.asset))
 
 function fmt(n) {
   return Number(n).toFixed(2)

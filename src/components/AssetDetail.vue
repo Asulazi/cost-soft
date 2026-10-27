@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import { X, SquarePen, TrendingDown } from 'lucide-vue-next'
 import { daysUsed, dailyCost, totalCost, targetInfo } from '../db.js'
 
@@ -7,7 +8,7 @@ const props = defineProps({
 })
 defineEmits(['close', 'edit'])
 
-const target = targetInfo(props.asset)
+const target = computed(() => targetInfo(props.asset))
 
 function fmt(n) {
   return Number(n).toFixed(2)
