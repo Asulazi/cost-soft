@@ -294,10 +294,18 @@ a {
   flex: 0 0 auto;
 }
 
-.asset-grid {
+.masonry {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: 14px;
+}
+
+.masonry-col {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
 }
 
 .asset-card {

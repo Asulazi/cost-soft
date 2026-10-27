@@ -188,8 +188,14 @@ function cycleView() {
 }
 
 const gridStyle = computed(() =>
-  viewConfig.value.mode === 'grid' ? { gridTemplateColumns: `repeat(${viewConfig.value.cols}, 1fr)` } : {}
+  viewConfig.value.mode === 'grid' ? { gridTemplateColumns: `repeat(${viewConfig.value.cols}, minmax(0, 1fr))` } : {}
 )
+
+const masonryColumns = computed(() => {
+  if (viewConfig.value.mode !== 'grid') return []
+  const count = Number(viewConfig.value.cols) || 2
+  return Array.from({ length: count }, (_, col) => sorted.value.filter((_, i) => i % count === col))
+})
 
 const tabs = [
   { key: 'home', label: 'asulazi', icon: Heart },
@@ -260,8 +266,10 @@ const tabs = [
           <span class="view-badge" @click="cycleView"><component :is="viewIcon" :size="16" /></span>
         </div>
 
-        <div v-if="viewConfig.mode === 'grid'" class="asset-grid" :style="gridStyle">
-          <AssetCard v-for="a in sorted" :key="a.id" :asset="a" @open="openDetail" />
+        <div v-if="viewConfig.mode === 'grid'" class="masonry" :style="gridStyle">
+          <div v-for="(column, ci) in masonryColumns" :key="ci" class="masonry-col">
+            <AssetCard v-for="a in column" :key="a.id" :asset="a" @open="openDetail" />
+          </div>
           <div v-if="!sorted.length" class="empty-hint">这里还空空的，点右下角 + 记录第一件宝贝吧</div>
         </div>
         <div v-else class="list-wrap">
