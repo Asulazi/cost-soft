@@ -122,7 +122,15 @@ async function saveAsset(data) {
       await db.assets.put({ ...JSON.parse(JSON.stringify(editing.value)), ...clean, order: editing.value.order ?? maxOrder + 1 })
       showToast('已保存')
     } else {
-      await db.assets.add({ ...clean, order: maxOrder + 1 })
+      const newId = await db.assets.add({ ...clean, order: maxOrder + 1 })
+      if (sortConfig.value.mode === 'custom') {
+        const cfg = {
+          ...sortConfig.value,
+          order: [newId, ...(Array.isArray(sortConfig.value.order) ? sortConfig.value.order : [])]
+        }
+        await saveSortConfig(JSON.parse(JSON.stringify(cfg)))
+        sortConfig.value = cfg
+      }
       showToast('已添加')
     }
     showForm.value = false

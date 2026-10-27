@@ -64,7 +64,7 @@ export async function getCategories() {
 export async function saveCategories(list) {
   await db.settings.put({
     key: 'categories',
-    value: list.map((item, index) => ({ ...item, order: index }))
+    value: JSON.parse(JSON.stringify(list.map((item, index) => ({ ...item, order: index }))))
   })
 }
 

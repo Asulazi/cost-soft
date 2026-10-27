@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { Pin } from 'lucide-vue-next'
 import { daysUsed, dailyCost, targetInfo } from '../db.js'
 import CuteBox from './CuteBox.vue'
 
@@ -21,8 +22,11 @@ function fmt(n) {
       <div class="asset-photo">
         <img v-if="asset.photo" :src="asset.photo" alt="" />
         <CuteBox v-else class="placeholder-box" />
+        <span v-if="asset.pinned" class="pin-mark"><Pin :size="11" :stroke-width="2.4" /></span>
       </div>
-      <span class="status-pill" :class="{ sold: asset.status === '已售出', retired: asset.status === '未使用' }">{{ asset.status }}</span>
+      <span class="status-pill" :class="{ sold: asset.status === '已售出', retired: asset.status === '未使用' }">
+        <i class="status-mini-dot" :class="asset.status"></i>{{ asset.status }}
+      </span>
     </div>
     <div class="asset-body">
       <div class="asset-title-row">

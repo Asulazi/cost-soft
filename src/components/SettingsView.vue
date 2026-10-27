@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { Download, Upload, FileDown, FolderPlus, ShieldCheck, Trash2, ChevronRight, Plus, X } from 'lucide-vue-next'
+import { Download, Upload, FileDown, FolderPlus, ShieldCheck, Trash2, ChevronRight, Plus, X, Settings2 } from 'lucide-vue-next'
 import { db, saveCategories } from '../db.js'
 
 const props = defineProps({
@@ -49,14 +49,14 @@ function getTemplate() {
 async function addCategory() {
   const name = newCat.value.trim()
   if (!name) return
-  await saveCategories([...props.categories, { id: Date.now(), name, order: props.categories.length }])
+  await saveCategories(JSON.parse(JSON.stringify([...props.categories, { id: Date.now(), name, order: props.categories.length }])))
   newCat.value = ''
   emit('toast', '已添加分类')
 }
 
 async function removeCategory(index) {
   const next = props.categories.filter((_, i) => i !== index)
-  await saveCategories(next)
+  await saveCategories(JSON.parse(JSON.stringify(next)))
   emit('toast', '已删除分类')
 }
 
@@ -117,6 +117,9 @@ async function clearAll() {
     </div>
 
     <div class="set-section">
+      <div class="set-row" style="cursor: default">
+        <Settings2 :size="18" /> 操作
+      </div>
       <button class="set-row danger" @click="clearAll">
         <Trash2 :size="18" /> 清空全部资产
         <ChevronRight class="chevron" :size="16" />

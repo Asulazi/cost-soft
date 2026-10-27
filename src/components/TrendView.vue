@@ -18,15 +18,14 @@ const range = ref(0)
 
 const totals = computed(() => {
   const today = new Date().toISOString().slice(0, 10)
-  let cutoffDate = ''
-  if (range.value > 0) {
-    const c = new Date()
-    c.setDate(c.getDate() - range.value)
-    cutoffDate = c.toISOString().slice(0, 10)
-  }
   const scoped = props.assets.filter((a) => {
-    if (cutoffDate && a.purchaseDate < cutoffDate) return false
-    return true
+    if (range.value === 0) return true
+    const purchase = new Date(a.purchaseDate)
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - range.value)
+    if (purchase > cutoff) return true
+    if (a.status === '已售出' && a.soldDate && new Date(a.soldDate) >= cutoff) return true
+    return false
   })
   const active = scoped.filter((a) => a.status === '使用中')
   return {
@@ -36,15 +35,14 @@ const totals = computed(() => {
 })
 
 const statusSplit = computed(() => {
-  let cutoffDate = ''
-  if (range.value > 0) {
-    const c = new Date()
-    c.setDate(c.getDate() - range.value)
-    cutoffDate = c.toISOString().slice(0, 10)
-  }
   const scoped = props.assets.filter((a) => {
-    if (cutoffDate && a.purchaseDate < cutoffDate) return false
-    return true
+    if (range.value === 0) return true
+    const purchase = new Date(a.purchaseDate)
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - range.value)
+    if (purchase > cutoff) return true
+    if (a.status === '已售出' && a.soldDate && new Date(a.soldDate) >= cutoff) return true
+    return false
   })
   const total = scoped.reduce((s, a) => s + Number(a.price), 0) || 1
   const groups = ['使用中', '未使用', '已售出'].map((s) => {
