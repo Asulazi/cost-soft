@@ -19,7 +19,7 @@ function fmt(n) {
         <img v-if="asset.photo" :src="asset.photo" alt="" />
         <CuteBox v-else class="placeholder-box" />
       </div>
-      <span class="status-pill" :class="{ sold: asset.status === '已卖出', retired: asset.status === '已退役' }">{{ asset.status }}</span>
+      <span class="status-pill" :class="{ sold: asset.status === '已售出', retired: asset.status === '未使用' }">{{ asset.status }}</span>
     </div>
     <div class="asset-body">
       <div class="asset-title-row">

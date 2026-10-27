@@ -262,15 +262,15 @@ function submit() {
     <div class="form-section">
       <div class="switch-row">
         <span class="field-icon"><PackageX :size="18" /></span>
-        <span class="field-label">已退役</span>
-        <button class="switch" :class="{ on: form.status === '已退役' }" @click="form.status = form.status === '已退役' ? '服役中' : '已退役'"><span class="knob"></span></button>
+        <span class="field-label">未使用</span>
+        <button class="switch" :class="{ on: form.status === '未使用' }" @click="form.status = form.status === '未使用' ? '使用中' : '未使用'"><span class="knob"></span></button>
       </div>
       <div class="switch-row">
         <span class="field-icon"><ArrowUpFromLine :size="18" /></span>
         <span class="field-label">卖出的</span>
-        <button class="switch" :class="{ on: form.status === '已卖出' }" @click="form.status = form.status === '已卖出' ? '服役中' : '已卖出'"><span class="knob"></span></button>
+        <button class="switch" :class="{ on: form.status === '已售出' }" @click="form.status = form.status === '已售出' ? '使用中' : '已售出'"><span class="knob"></span></button>
       </div>
-      <div v-if="form.status === '已卖出'" class="field-row" style="border-top: 1px solid var(--line)">
+      <div v-if="form.status === '已售出'" class="field-row" style="border-top: 1px solid var(--line)">
         <span class="field-label">卖出日期</span>
         <DateField v-model="form.soldDate" title="卖出日期" placeholder="请选择卖出日期" />
       </div>

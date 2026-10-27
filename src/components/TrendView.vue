@@ -28,7 +28,7 @@ const totals = computed(() => {
     if (cutoffDate && a.purchaseDate < cutoffDate) return false
     return true
   })
-  const active = scoped.filter((a) => a.status === '服役中')
+  const active = scoped.filter((a) => a.status === '使用中')
   return {
     value: active.reduce((s, a) => s + Number(a.price), 0),
     count: scoped.length
@@ -47,7 +47,7 @@ const statusSplit = computed(() => {
     return true
   })
   const total = scoped.reduce((s, a) => s + Number(a.price), 0) || 1
-  const groups = ['服役中', '已退役', '已卖出'].map((s) => {
+  const groups = ['使用中', '未使用', '已售出'].map((s) => {
     const list = scoped.filter((a) => a.status === s)
     return {
       name: s,

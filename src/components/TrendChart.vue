@@ -17,7 +17,7 @@ const points = computed(() => {
   const dateSet = new Set()
   for (const a of list) {
     if (a.purchaseDate) dateSet.add(String(a.purchaseDate).slice(0, 10))
-    if (a.status === '已卖出' && a.soldDate) dateSet.add(String(a.soldDate).slice(0, 10))
+    if (a.status === '已售出' && a.soldDate) dateSet.add(String(a.soldDate).slice(0, 10))
   }
   const today = iso(new Date())
   dateSet.add(today)
@@ -26,7 +26,7 @@ const points = computed(() => {
   const valueAt = (d) =>
     list.reduce((sum, a) => {
       if (!a.purchaseDate || a.purchaseDate > d) return sum
-      if (a.status === '已卖出' && a.soldDate && a.soldDate <= d) return sum
+      if (a.status === '已售出' && a.soldDate && a.soldDate <= d) return sum
       return sum + Number(a.price)
     }, 0)
 

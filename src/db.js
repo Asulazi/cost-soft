@@ -9,9 +9,19 @@ db.version(1).stores({
 })
 
 export const STATUS = {
-  ACTIVE: '服役中',
-  RETIRED: '已退役',
-  SOLD: '已卖出'
+  ACTIVE: '使用中',
+  RETIRED: '未使用',
+  SOLD: '已售出'
+}
+
+const STATUS_ALIASES = {
+  服役中: STATUS.ACTIVE,
+  已退役: STATUS.RETIRED,
+  已卖出: STATUS.SOLD
+}
+
+export function normalizeStatus(value) {
+  return STATUS_ALIASES[value] || value
 }
 
 export const DEFAULT_CATEGORIES = [
@@ -37,6 +47,12 @@ export async function ensureSeed() {
   const view = await db.settings.get('homeView')
   if (!view) {
     await db.settings.put({ key: 'homeView', value: { mode: 'grid', cols: 2 } })
+  }
+
+  const assets = await db.assets.toArray()
+  const changed = assets.filter((a) => STATUS_ALIASES[a.status])
+  if (changed.length) {
+    await db.assets.bulkPut(changed.map((a) => ({ ...a, status: STATUS_ALIASES[a.status] })))
   }
 }
 

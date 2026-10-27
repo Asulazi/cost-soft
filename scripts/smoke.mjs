@@ -77,7 +77,7 @@ import * as XLSX from 'xlsx'
 const wb = XLSX.read(new Uint8Array(await import('fs/promises').then((fs) => fs.readFile('shots/template.xlsx'))), { type: 'array' })
 const ws = wb.Sheets[wb.SheetNames[0]]
 const rows = XLSX.utils.sheet_to_json(ws, { header: 1 })
-rows.push(['Excel导入测试', 66.5, '2025-01-05', '其他', '测试', '服役中', ''])
+rows.push(['Excel导入测试', 66.5, '2025-01-05', '其他', '测试', '使用中', ''])
 const out = XLSX.utils.aoa_to_sheet(rows)
 const outWb = XLSX.utils.book_new()
 XLSX.utils.book_append_sheet(outWb, out, '资产')

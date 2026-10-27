@@ -39,7 +39,7 @@ async function loadAll() {
 
 onMounted(loadAll)
 
-const filters = computed(() => ['全部', '服役中', '已退役', '已卖出'])
+const filters = computed(() => ['全部', '使用中', '未使用', '已售出'])
 
 const filtered = computed(() => {
   if (filter.value === '全部') return assets.value
@@ -81,18 +81,18 @@ const sorted = computed(() => {
 })
 
 const totals = computed(() => {
-  const active = assets.value.filter((a) => a.status === '服役中' && !a.excludeFromTotal)
+  const active = assets.value.filter((a) => a.status === '使用中' && !a.excludeFromTotal)
   const totalValue = active.reduce((s, a) => s + Number(a.price), 0)
   const totalDaily = assets.value
-    .filter((a) => a.status !== '已卖出' && !a.excludeFromDaily)
+    .filter((a) => a.status !== '已售出' && !a.excludeFromDaily)
     .reduce((s, a) => s + dailyCost(a), 0)
   return {
     value: totalValue,
     daily: totalDaily,
     counts: {
       active: active.length,
-      retired: assets.value.filter((a) => a.status === '已退役').length,
-      sold: assets.value.filter((a) => a.status === '已卖出').length
+      retired: assets.value.filter((a) => a.status === '未使用').length,
+      sold: assets.value.filter((a) => a.status === '已售出').length
     }
   }
 })
@@ -219,9 +219,9 @@ const tabs = [
             </div>
           </div>
           <div class="status-row">
-            <div class="status-cell"><strong>{{ totals.counts.active }}</strong>服役中</div>
-            <div class="status-cell"><strong>{{ totals.counts.retired }}</strong>已退役</div>
-            <div class="status-cell"><strong>{{ totals.counts.sold }}</strong>已卖出</div>
+            <div class="status-cell"><strong>{{ totals.counts.active }}</strong>使用中</div>
+            <div class="status-cell"><strong>{{ totals.counts.retired }}</strong>未使用</div>
+            <div class="status-cell"><strong>{{ totals.counts.sold }}</strong>已售出</div>
           </div>
           <div class="status-bars">
             <span class="bar" :class="{ dim: !totals.counts.active }"></span>

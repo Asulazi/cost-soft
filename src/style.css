@@ -319,9 +319,9 @@ a {
 
 .asset-photo {
   flex: 0 0 auto;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 62px;
+  height: 62px;
+  border-radius: 16px;
   background: var(--bg);
   display: grid;
   place-items: center;
@@ -367,13 +367,13 @@ a {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 4px;
+  padding: 6px;
   box-sizing: border-box;
 }
 
 .placeholder-box {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   opacity: 0.9;
 }
 
@@ -421,9 +421,9 @@ a {
   border-radius: 50%;
 }
 
-.status-dot.服役中 { background: var(--accent); }
-.status-dot.已退役 { background: #f0b429; }
-.status-dot.已卖出 { background: #b8bcae; }
+.status-dot.使用中 { background: var(--accent); }
+.status-dot.未使用 { background: #f0b429; }
+.status-dot.已售出 { background: #b8bcae; }
 
 .asset-meta {
   font-size: 11px;
@@ -497,10 +497,19 @@ a {
 }
 
 .form-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  margin: 0 -18px;
+  padding: calc(10px + env(safe-area-inset-top)) 18px 14px;
+  background: rgba(242, 243, 238, 0.94);
+  backdrop-filter: blur(12px);
+}
+
+.form-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 0 20px;
 }
 
 .form-header .icon-btn {
