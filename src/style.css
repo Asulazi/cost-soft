@@ -1368,6 +1368,14 @@ a {
   color: var(--ink-faint);
 }
 
+.ops-chevron {
+  transition: transform 0.2s ease;
+}
+
+.ops-chevron.open {
+  transform: rotate(90deg);
+}
+
 .set-hint {
   padding: 4px 20px 14px;
   font-size: 13px;

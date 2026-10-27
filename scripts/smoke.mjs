@@ -87,6 +87,9 @@ await page.setInputFiles('input[type="file"]', 'shots/import-test.xlsx')
 await page.waitForTimeout(600)
 await page.screenshot({ path: 'shots/09-after-import.png' })
 
+await page.click('button.set-row:has-text("操作")')
+await page.waitForTimeout(200)
+
 let dialogCount = 0
 page.on('dialog', (d) => {
   dialogCount++

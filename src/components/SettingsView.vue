@@ -9,6 +9,7 @@ const props = defineProps({
 const emit = defineEmits(['toast', 'reload'])
 
 const newCat = ref('')
+const showOps = ref(false)
 
 function exportData() {
   emit('toast', '导出中...')
@@ -117,10 +118,11 @@ async function clearAll() {
     </div>
 
     <div class="set-section">
-      <div class="set-row" style="cursor: default">
+      <button class="set-row" @click="showOps = !showOps">
         <Settings2 :size="18" /> 操作
-      </div>
-      <button class="set-row danger" @click="clearAll">
+        <ChevronRight class="chevron ops-chevron" :class="{ open: showOps }" :size="16" />
+      </button>
+      <button v-if="showOps" class="set-row danger" @click="clearAll">
         <Trash2 :size="18" /> 清空全部资产
         <ChevronRight class="chevron" :size="16" />
       </button>
