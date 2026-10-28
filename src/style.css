@@ -608,24 +608,26 @@ a {
   place-items: center;
 }
 
-.detail-hero {
-  text-align: center;
+.detail-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   margin-bottom: 20px;
+  padding: 14px;
 }
 
-.detail-photo {
-  width: 116px;
-  height: 116px;
-  margin: 0 auto 16px;
+.detail-summary-photo {
+  flex: 0 0 auto;
+  width: 72px;
+  height: 72px;
   border-radius: 18px;
   background: var(--surface);
-  box-shadow: var(--shadow);
   display: grid;
   place-items: center;
   overflow: hidden;
 }
 
-.detail-photo img {
+.detail-summary-photo img {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -633,23 +635,88 @@ a {
   box-sizing: border-box;
 }
 
-.detail-hero h1 {
-  font-size: 21px;
+.detail-placeholder {
+  width: 34px;
+  height: 34px;
+  opacity: 0.9;
+}
+
+.detail-summary-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-summary-label {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.detail-summary h1 {
+  margin-top: 4px;
+  font-size: 20px;
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
 
-.detail-daily {
-  margin-top: 8px;
+.detail-cost-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.detail-cost-value {
+  display: block;
+  margin-top: 6px;
   font-size: 24px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
-.detail-sub {
+.detail-days {
+  text-align: right;
+}
+
+.detail-days strong {
+  display: block;
   margin-top: 6px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.detail-chart {
+  position: relative;
+}
+
+.detail-chart-scale {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 24px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   font-size: 12px;
-  color: var(--ink-soft);
+  color: var(--ink-faint);
+  pointer-events: none;
+}
+
+.detail-chart svg {
+  display: block;
+  width: calc(100% - 34px);
+  height: 132px;
+}
+
+.detail-chart-axis {
+  display: flex;
+  justify-content: space-between;
+  width: calc(100% - 34px);
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--ink-faint);
 }
 
 .detail-card {
