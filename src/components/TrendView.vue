@@ -16,6 +16,14 @@ const ranges = [
 ]
 const range = ref(0)
 
+const rangeDescriptions = {
+  0: '当前全部资产的实际状态分布',
+  30: '当前仍在有效期，或近 30 天内购入 / 售出的资产',
+  90: '当前仍在有效期，或近 90 天内购入 / 售出的资产',
+  180: '当前仍在有效期，或近 180 天内购入 / 售出的资产',
+  365: '当前仍在有效期，或近 1 年内购入 / 售出的资产'
+}
+
 const totals = computed(() => {
   const today = new Date().toISOString().slice(0, 10)
   const scoped = props.assets.filter((a) => {
@@ -90,6 +98,7 @@ const statusSplit = computed(() => {
       <div class="trend-head">
         <span class="trend-title">资产状态</span>
       </div>
+      <div class="trend-note">{{ rangeDescriptions[range] }}</div>
       <div class="trend-legend">
         <div v-for="g in statusSplit" :key="g.name" class="legend-row">
           <span class="status-dot" :class="g.name"></span>

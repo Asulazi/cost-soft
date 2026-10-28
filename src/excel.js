@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx'
 import { STATUS } from './db.js'
 
-const HEADERS = ['名称', '价格', '购买日期', '类别', '标签', '状态', '卖出日期']
+const HEADERS = ['名称', '价格', '购买日期', '类别', '平台', '状态', '卖出日期']
 const STATUS_LIST = [STATUS.ACTIVE, STATUS.RETIRED, STATUS.SOLD]
 
 function today() {
@@ -35,7 +35,7 @@ export function exportAssetsExcel(assets) {
 }
 
 export function downloadTemplate() {
-  const example = ['（示例）无线蓝牙耳机', 299, '2024-05-01', '电子', '耳机 蓝牙', STATUS.ACTIVE, '']
+  const example = ['（示例）无线蓝牙耳机', 299, '2024-05-01', '电子', '淘宝 京东', STATUS.ACTIVE, '']
   const ws = XLSX.utils.aoa_to_sheet([HEADERS, example])
   ws['!cols'] = [{ wch: 24 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 20 }, { wch: 8 }, { wch: 12 }]
 
@@ -45,7 +45,7 @@ export function downloadTemplate() {
     ['价格', '必填', '数字，不要带货币符号，例如 98 或 98.50'],
     ['购买日期', '必填', '格式 2024-05-01，也可以用 Excel 日期格式'],
     ['类别', '选填', '需要先在 App 设置里添加同名分类，否则按"未分类"处理'],
-    ['标签', '选填', '多个标签用空格分开，例如：厨房 常用'],
+    ['平台', '选填', '多个平台用空格分开，例如：淘宝 京东 拼多多'],
     ['状态', '选填', `只能是：${STATUS_LIST.join(' / ')}，默认为${STATUS.ACTIVE}`],
     ['卖出日期', '选填', '只有状态为已售出时需要，格式 2024-08-01'],
     ['', '', ''],

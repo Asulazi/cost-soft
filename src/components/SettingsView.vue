@@ -53,12 +53,20 @@ async function addCategory() {
   await saveCategories(JSON.parse(JSON.stringify([...props.categories, { id: Date.now(), name, order: props.categories.length }])))
   newCat.value = ''
   emit('toast', '已添加分类')
+  emit('reload')
 }
 
 async function removeCategory(index) {
+  const name = props.categories[index]?.name
   const next = props.categories.filter((_, i) => i !== index)
+  const assets = await db.assets.toArray()
+  const affected = assets
+    .filter((a) => a.category === name)
+    .map((a) => ({ ...JSON.parse(JSON.stringify(a)), category: '' }))
+  if (affected.length) await db.assets.bulkPut(affected)
   await saveCategories(JSON.parse(JSON.stringify(next)))
   emit('toast', '已删除分类')
+  emit('reload')
 }
 
 async function clearAll() {

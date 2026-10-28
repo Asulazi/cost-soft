@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref, computed } from 'vue'
-import { X, Check, Package, Wallet, Tag, Shapes, CalendarDays, Target, Coins, TrendingUp, Paperclip, Pin, PiggyBank, CalendarX2, PackageX, ArrowUpFromLine, StickyNote, ImagePlus, Plus } from 'lucide-vue-next'
+import { X, Check, Package, Wallet, Shapes, CalendarDays, Target, Coins, TrendingUp, Paperclip, Pin, PiggyBank, CalendarX2, PackageX, ArrowUpFromLine, StickyNote, ImagePlus, Plus, Store } from 'lucide-vue-next'
 import CuteBox from './CuteBox.vue'
 import DateField from './DateField.vue'
 import { STATUS } from '../db.js'
@@ -16,8 +16,8 @@ const form = reactive({
   price: props.asset?.price ?? '',
   purchaseDate: props.asset?.purchaseDate || new Date().toISOString().slice(0, 10),
   soldDate: props.asset?.soldDate || '',
-  category: props.asset?.category || props.categories[0]?.name || '未分类',
-  tags: Array.isArray(props.asset?.tags) ? props.asset.tags.join(' ') : '',
+  category: props.asset?.category || '',
+  platforms: Array.isArray(props.asset?.tags) ? props.asset.tags : [],
   status: props.asset?.status || STATUS.ACTIVE,
   rule: props.asset?.rule || '按天',
   type: props.asset?.type || '资产',
@@ -100,6 +100,13 @@ function compress(file) {
 }
 
 const rules = ['按天', '按次', '自定义']
+const platformOptions = ['淘宝', '京东', '拼多多', '美团', '抖音', '线下']
+
+function togglePlatform(name) {
+  const i = form.platforms.indexOf(name)
+  if (i === -1) form.platforms.push(name)
+  else form.platforms.splice(i, 1)
+}
 const today = computed(() => new Date().toISOString().slice(0, 10))
 
 function submit() {
@@ -121,7 +128,7 @@ function submit() {
     incomes: form.incomes.filter((i) => Number(i.amount) > 0),
     marketPrices: form.marketPrices.filter((i) => Number(i.price) > 0),
     extras: form.extras.filter((e) => Number(e.amount) > 0),
-    tags: form.tags.split(/[\s,，、]+/).filter(Boolean)
+    tags: [...form.platforms]
   })
 }
 </script>
@@ -164,14 +171,25 @@ function submit() {
         <span class="field-icon"><Shapes :size="18" /></span>
         <span class="field-label">类别</span>
         <select v-model="form.category" class="field-input" style="appearance: auto; text-align: right">
+          <option value="">请选择类别</option>
           <option v-for="c in categories" :key="c.id ?? c.name" :value="c.name">{{ c.name }}</option>
           <option value="未分类">未分类</option>
         </select>
       </div>
-      <div class="field-row">
-        <span class="field-icon"><Tag :size="18" /></span>
-        <span class="field-label">标签</span>
-        <input v-model="form.tags" class="field-input" placeholder="空格分隔，可留空" />
+      <div class="platform-row">
+        <span class="field-icon"><Store :size="18" /></span>
+        <span class="field-label">平台</span>
+        <div class="platform-options">
+          <button
+            v-for="p in platformOptions"
+            :key="p"
+            class="platform-chip"
+            :class="{ on: form.platforms.includes(p) }"
+            @click="togglePlatform(p)"
+          >
+            {{ p }}
+          </button>
+        </div>
       </div>
     </div>
 

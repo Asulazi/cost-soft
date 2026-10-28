@@ -183,7 +183,15 @@ a {
   display: flex;
   gap: 8px;
   align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 20;
   margin-bottom: 16px;
+  margin-left: -18px;
+  margin-right: -18px;
+  padding: calc(10px + env(safe-area-inset-top)) 18px 12px;
+  background: rgba(242, 243, 238, 0.94);
+  backdrop-filter: blur(12px);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -742,6 +750,9 @@ a {
 .detail-delete {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-top: 6px;
 }
 
@@ -843,6 +854,31 @@ a {
 .field-input[type='number'] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+.platform-row {
+  padding: 14px 18px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.platform-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.platform-chip {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.platform-chip.on {
+  background: var(--ink);
+  color: var(--surface);
 }
 
 .date-trigger {
@@ -1291,6 +1327,12 @@ a {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 10px;
+}
+
+.trend-note {
+  font-size: 12px;
+  color: var(--ink-faint);
+  margin: -4px 0 12px;
 }
 
 .trend-title {
