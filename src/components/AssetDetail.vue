@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { X, SquarePen, Trash2 } from 'lucide-vue-next'
 import CuteBox from './CuteBox.vue'
-import { daysUsed, dailyCost, totalCost, targetInfo } from '../db.js'
+import { daysUsed, dailyCost, totalCost, targetInfo, addDaysISO } from '../db.js'
 
 const props = defineProps({
   asset: { type: Object, required: true }
@@ -17,19 +17,14 @@ const costPoints = computed(() => {
   const total = Math.max(0.01, totalCost(props.asset))
   const totalDays = days.value
   const step = Math.max(1, Math.floor(totalDays / 90))
-  const start = new Date(props.asset.purchaseDate)
   const points = []
   for (let day = 1; day <= totalDays; day += step) {
-    const date = new Date(start)
-    date.setDate(date.getDate() + day - 1)
     points.push({
-      date: date.toISOString().slice(0, 10),
+      date: addDaysISO(props.asset.purchaseDate, day - 1),
       value: total / day
     })
   }
-  const lastDate = new Date(start)
-  lastDate.setDate(lastDate.getDate() + totalDays - 1)
-  points.push({ date: lastDate.toISOString().slice(0, 10), value: total / totalDays })
+  points.push({ date: addDaysISO(props.asset.purchaseDate, totalDays - 1), value: total / totalDays })
   return points
 })
 

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { TrendingUp } from 'lucide-vue-next'
+import { beijingDateKey, addDaysISO } from '../db.js'
 import TrendChart from './TrendChart.vue'
 
 const props = defineProps({
@@ -16,6 +17,8 @@ const ranges = [
 ]
 const range = ref(0)
 
+const today = computed(() => beijingDateKey())
+
 const rangeDescriptions = {
   0: '当前全部资产的实际状态分布',
   30: '当前仍在有效期，或近 30 天内购入 / 售出的资产',
@@ -25,14 +28,11 @@ const rangeDescriptions = {
 }
 
 const totals = computed(() => {
-  const today = new Date().toISOString().slice(0, 10)
   const scoped = props.assets.filter((a) => {
     if (range.value === 0) return true
-    const purchase = new Date(a.purchaseDate)
-    const cutoff = new Date()
-    cutoff.setDate(cutoff.getDate() - range.value)
-    if (purchase > cutoff) return true
-    if (a.status === '已售出' && a.soldDate && new Date(a.soldDate) >= cutoff) return true
+    const cutoff = addDaysISO(today.value, -range.value + 1)
+    if (a.purchaseDate >= cutoff) return true
+    if (a.status === '已售出' && a.soldDate && a.soldDate >= cutoff) return true
     return false
   })
   const active = scoped.filter((a) => a.status === '使用中')
@@ -45,11 +45,9 @@ const totals = computed(() => {
 const statusSplit = computed(() => {
   const scoped = props.assets.filter((a) => {
     if (range.value === 0) return true
-    const purchase = new Date(a.purchaseDate)
-    const cutoff = new Date()
-    cutoff.setDate(cutoff.getDate() - range.value)
-    if (purchase > cutoff) return true
-    if (a.status === '已售出' && a.soldDate && new Date(a.soldDate) >= cutoff) return true
+    const cutoff = addDaysISO(today.value, -range.value + 1)
+    if (a.purchaseDate >= cutoff) return true
+    if (a.status === '已售出' && a.soldDate && a.soldDate >= cutoff) return true
     return false
   })
   const total = scoped.reduce((s, a) => s + Number(a.price), 0) || 1

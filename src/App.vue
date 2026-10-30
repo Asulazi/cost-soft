@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { Heart, TrendingUp, Settings, Plus, ArrowUpDown, LayoutGrid, Grid2X2, Grid3X3 } from 'lucide-vue-next'
-import { db, ensureSeed, getCategories, getSortConfig, saveSortConfig, getViewConfig, saveViewConfig, daysUsed, dailyCost } from './db.js'
+import { db, ensureSeed, getCategories, getSortConfig, saveSortConfig, getViewConfig, saveViewConfig, daysUsed, dailyCost, beijingDateKey } from './db.js'
 import AssetCard from './components/AssetCard.vue'
 import AssetListRow from './components/AssetListRow.vue'
 import AssetForm from './components/AssetForm.vue'
@@ -22,6 +22,7 @@ const editing = ref(null)
 const showSort = ref(false)
 const filter = ref('全部')
 const toast = ref('')
+const dayKey = ref(beijingDateKey())
 
 let toastTimer = null
 function showToast(msg) {
@@ -40,6 +41,29 @@ async function loadAll() {
 }
 
 onMounted(loadAll)
+
+let dayTimer = null
+
+function checkDayChange() {
+  const next = beijingDateKey()
+  if (next !== dayKey.value) {
+    dayKey.value = next
+    loadAll()
+  }
+}
+
+onMounted(() => {
+  dayTimer = setInterval(checkDayChange, 30000)
+  window.addEventListener('focus', checkDayChange)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) checkDayChange()
+  })
+})
+
+onBeforeUnmount(() => {
+  clearInterval(dayTimer)
+  window.removeEventListener('focus', checkDayChange)
+})
 
 const filters = computed(() => ['全部', '使用中', '未使用', '已售出'])
 

@@ -24,6 +24,21 @@ export function normalizeStatus(value) {
   return STATUS_ALIASES[value] || value
 }
 
+export function beijingDateKey(timestamp = Date.now()) {
+  return new Date(timestamp + 8 * 3600000).toISOString().slice(0, 10)
+}
+
+function beijingDateMs(dateKey) {
+  const [year, month, day] = String(dateKey).slice(0, 10).split('-').map(Number)
+  // 北京时间 00:00 对应 UTC 前一天 16:00。
+  return Date.UTC(year, month - 1, day, -8)
+}
+
+export function addDaysISO(dateKey, count) {
+  const ms = beijingDateMs(dateKey) + count * 86400000
+  return new Date(ms + 8 * 3600000).toISOString().slice(0, 10)
+}
+
 export const DEFAULT_CATEGORIES = [
   { id: 1, name: '厨房', order: 0 },
   { id: 2, name: '电子', order: 1 },
@@ -89,9 +104,10 @@ export async function saveViewConfig(config) {
 }
 
 export function daysUsed(purchaseDate, status, soldDate = null) {
-  const end = status === STATUS.SOLD && soldDate ? new Date(soldDate) : new Date()
-  const start = new Date(purchaseDate)
-  const diff = Math.floor((end - start) / 86400000)
+  const end = status === STATUS.SOLD && soldDate
+    ? beijingDateMs(soldDate)
+    : Date.now()
+  const diff = Math.floor((end - beijingDateMs(purchaseDate)) / 86400000)
   return Math.max(1, diff)
 }
 
@@ -133,8 +149,7 @@ export function targetInfo(asset) {
   const requiredDays = Math.max(days, Math.ceil(totalCost(asset) / target))
   const remainingDays = Math.max(0, requiredDays - days)
   const progress = Math.min(100, Math.max(0, (target / current) * 100))
-  const targetDate = new Date()
-  targetDate.setDate(targetDate.getDate() + remainingDays)
+  const targetDate = addDaysISO(asset.purchaseDate, requiredDays - 1)
   return {
     target,
     current,

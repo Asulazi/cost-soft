@@ -1,11 +1,11 @@
 import * as XLSX from 'xlsx'
-import { STATUS } from './db.js'
+import { STATUS, beijingDateKey, addDaysISO } from './db.js'
 
 const HEADERS = ['名称', '价格', '购买日期', '类别', '平台', '状态', '卖出日期']
 const STATUS_LIST = [STATUS.ACTIVE, STATUS.RETIRED, STATUS.SOLD]
 
 function today() {
-  return new Date().toISOString().slice(0, 10)
+  return beijingDateKey()
 }
 
 function dateStr(v) {

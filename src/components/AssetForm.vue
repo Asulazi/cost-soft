@@ -3,7 +3,7 @@ import { reactive, ref, computed } from 'vue'
 import { X, Check, Package, Wallet, Shapes, CalendarDays, Target, Coins, TrendingUp, Paperclip, Pin, PiggyBank, CalendarX2, PackageX, ArrowUpFromLine, StickyNote, ImagePlus, Plus, Store } from 'lucide-vue-next'
 import CuteBox from './CuteBox.vue'
 import DateField from './DateField.vue'
-import { STATUS } from '../db.js'
+import { STATUS, beijingDateKey } from '../db.js'
 
 const props = defineProps({
   asset: { type: Object, default: null },
@@ -14,7 +14,7 @@ const emit = defineEmits(['close', 'save', 'toast'])
 const form = reactive({
   name: props.asset?.name || '',
   price: props.asset?.price ?? '',
-  purchaseDate: props.asset?.purchaseDate || new Date().toISOString().slice(0, 10),
+  purchaseDate: props.asset?.purchaseDate || beijingDateKey(),
   soldDate: props.asset?.soldDate || '',
   category: props.asset?.category || '',
   platforms: Array.isArray(props.asset?.tags) ? props.asset.tags : [],
@@ -41,11 +41,11 @@ function addTarget(mode) {
 }
 
 function addIncome() {
-  form.incomes.push({ date: new Date().toISOString().slice(0, 10), amount: '', note: '' })
+  form.incomes.push({ date: beijingDateKey(), amount: '', note: '' })
 }
 
 function addMarketPrice() {
-  form.marketPrices.push({ date: new Date().toISOString().slice(0, 10), price: '' })
+  form.marketPrices.push({ date: beijingDateKey(), price: '' })
 }
 
 function addExtra() {
@@ -107,7 +107,7 @@ function togglePlatform(name) {
   if (i === -1) form.platforms.push(name)
   else form.platforms.splice(i, 1)
 }
-const today = computed(() => new Date().toISOString().slice(0, 10))
+const today = computed(() => beijingDateKey())
 
 function submit() {
   if (!form.name.trim()) return emit('toast', '请填写名称')

@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { beijingDateKey, addDaysISO } from '../db.js'
 
 const props = defineProps({
   assets: { type: Array, required: true },
@@ -8,6 +9,10 @@ const props = defineProps({
 
 function iso(d) {
   return d.toISOString().slice(0, 10)
+}
+
+function beijingISO(timestamp = Date.now()) {
+  return beijingDateKey(timestamp)
 }
 
 const points = computed(() => {
@@ -19,7 +24,7 @@ const points = computed(() => {
     if (a.purchaseDate) dateSet.add(String(a.purchaseDate).slice(0, 10))
     if (a.status === '已售出' && a.soldDate) dateSet.add(String(a.soldDate).slice(0, 10))
   }
-  const today = iso(new Date())
+  const today = beijingISO()
   dateSet.add(today)
   const dates = [...dateSet].sort()
 
@@ -33,9 +38,7 @@ const points = computed(() => {
   let series = dates.map((d) => ({ date: d, value: valueAt(d) }))
 
   if (props.range > 0) {
-    const cutoff = new Date()
-    cutoff.setDate(cutoff.getDate() - props.range)
-    const cut = iso(cutoff)
+    const cut = addDaysISO(today, -props.range + 1)
     const before = series.filter((p) => p.date < cut)
     const base = before.length ? before[before.length - 1].value : 0
     series = series.filter((p) => p.date >= cut)
